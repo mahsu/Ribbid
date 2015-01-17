@@ -1,13 +1,14 @@
 <div ng-include="'partials/nav'"></div>
 <div id="content-wrap">
-  <form>
+  <form name="req_form" ng-submit="submitRequest(request_form.$valid)" novalidate>
     <div class="form-group">
       <label for="title">Request</label>
-      <input ng-model="request_form.title" type="text" class="form-control" id="title" placeholder="Mow the lawn">
+      <input name="title" ng-required="true" ng-model="request_form.title" type="text" class="form-control" id="title" placeholder="Mow the lawn">
+      <p ng-show="req_form.title.$invalid && !req_form.title.$pristine" class="help-block">This field is required.</p>
     </div>
     <div class="form-group">
       <label for="price">Starting Price</label>
-      <input ng-model="request_form.price" type="number" class="form-control" id="price" placeholder="$1.00">
+      <input ng-model="request_form.price" type="text" class="form-control" id="price" placeholder="$1.00">
     </div>
     <div class="form-group">
       <label for="completed_by">Complete By</label>
@@ -25,7 +26,7 @@
       <label for="tags">Tags</label>
       <input ng-model="request_form.tags" type="text" id="tags" class="form-control" data-role="tagsinput" />
     </div>
-    <button ng-click="submitRequest()" type="submit" class="btn btn-default">Add Request</button>
+    <button ng-click="submitRequest()" ng-disabled="request_form.$invalid" type="submit" class="btn btn-default">Add Request</button>
   </form>
 </div>
 <script src="/js/bootstrap-tagsinput.js"></script>
