@@ -1,8 +1,141 @@
+@dark-green: #27ae60;
+@light-green: #2ecc71;
+
 body {
-  padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: #eee;
 }
 
 a {
   color: #00B7FF;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav {
+  z-index: 1;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+  height: 50px;
+  background-color: @dark-green;
+  color: white;
+
+  #title {
+    text-align: center;
+    font-size: 18px;
+    line-height: 50px;
+    //position: absolute;
+    //width: 100%;
+  }
+  #left-btns {
+    left: 0px;
+  }
+  #right-btns {
+    right: 0px;
+  }
+  .btn-list {
+    position: absolute;
+    top: 0px;
+    height: 50px;
+    li {
+      display: inline-block;
+      a {
+        color: white;
+        i {
+          font-size: 24px;
+          padding: 13px 0px;
+          width: 35px;
+          text-align: center;
+        }
+      }
+      &:hover {
+        background-color: @light-green;
+      }
+    }
+  }
+}
+
+#content-wrap {
+  margin-top: 50px;
+}
+
+.list-view {
+  .list-item {
+    position: relative;
+    padding: 15px;
+    background-color: white;
+    & + .list-item {
+      &::before {
+        display: block;
+        position: relative;
+        top: -15px;
+        background-color: lightgray;
+        width: 100%;
+        height: 1px;
+        content: ""
+      }
+    }
+    &:active {
+      background-color: white;
+    }
+  }
+  .text-item {
+    a {
+      color: @dark-green;
+    }
+    text-align: center;
+    font-size: 18px;
+    padding: 15px 20px;
+  }
+
+  .request {
+    color: #222;
+    &:hover {
+      text-decoration: none;
+    }
+    .picture {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      float: left;
+      img {
+        width: 100%;
+        border-radius: 20px;
+      }
+    }
+    .name { color: @dark-green }
+    .title {
+      font-weight: bold;
+      &::after {
+        content: " ";
+      }
+    }
+    .stats {
+      float: right;
+      margin-left: 10px;
+      li {
+        color: lightgray;
+        &.dist {
+          &::after { content: "mi" }
+        }
+        &.time {
+          &::after { content: "m" }
+          margin: 5px 0px;
+        }
+        &.bid {
+          color: @dark-green;
+          &::before { content: "$" }
+        }
+      }
+    }
+  }
+}
+
+.float-group {
+  overflow: hidden;
 }
