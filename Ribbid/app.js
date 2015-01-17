@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+var authRoute = require('./routes/auth');
 
 var app = express();
 var http = require('http').Server(app);
@@ -34,6 +35,9 @@ app.use(passport.session());
 
 app.use('/', routes);
 app.use('/users', users);
+app.get('/auth/login/:provider', authRoute.login);
+app.get('/auth/callback/:provider', authRoute.loginCallback);
+app.get('/auth/logout', authRoute.logout);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
