@@ -10,9 +10,10 @@ router.post('/requests', function(req, res) {
         description: req.body.description,
         tags: req.body.tags,
         startingPrice: req.body.price,
-        mustCompleteBy: req.body.completed_by,
+        mustCompleteBy: new Date(req.body.completed_by),
         requester: req.user._id,
-        loc: [req.body.lon, req.body.lat]
+        loc: [req.body.lon, req.body.lat],
+        address: req.address
     };
     Request.addRequest(request, function(err, result) {
         if (err) console.log(err);
@@ -31,8 +32,28 @@ router.get('/requests', function(req, res) {
 
 });
 
-router.get('/requests', function(req, res){
-    res.render('index', { title: 'Express' });
+router.get('/request/:request_id', function(req, res) {
+
+});
+
+router.post('/request/:request_id/bids', function(req, res) {
+
+});
+
+router.get('/request/:request_id/bids', function(req, res){
+
+});
+
+router.post('/request/reviews', function(req, res) {
+
+});
+
+router.get('/request/reviews', function(req, res){
+
+});
+
+router.get('/user/:id', function(req, res){
+
 });
 
 module.exports = router;

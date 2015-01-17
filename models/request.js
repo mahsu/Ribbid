@@ -15,6 +15,7 @@ var requestSchema = new mongoose.Schema({
     startingPrice: Number,
     requester: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     fulfiller: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    address: String,
     loc: {type: [Number], index: '2dsphere'},
     bids: [bidSchema],
     timestamp: {type: Date, default: Date.now}

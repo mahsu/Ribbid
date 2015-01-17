@@ -46,7 +46,7 @@ function checkLoggedIn(req,res, next) {
     else res.status(401).send("User is not logged in.");
 }
 
-app.use('/api', checkLoggedIn, apiRoute);
+app.use('/api', apiRoute);
 app.use('/', routes);
 app.use('/users', users);
 app.get('/auth/login/:provider', authRoute.login);
