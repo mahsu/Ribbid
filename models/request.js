@@ -37,6 +37,29 @@ requestSchema.deleteRequest = function(id, callback){
     });
 };
 
+//maxdist in meters
+requestSchema.findRequests = function(maxdist,location, callback) {
+    var that = this;
+    var findParams = {
+        loc: {
+            $near: {
+                $geometry: {
+                    type: "Point",
+                    coordinates: location
+                },
+                $maxDistance: maxdist
+            }
+        }
+    };
+    that.find(findParams, function(err, results) {
+        if (err)
+            callback(err);
+        else {
+            callback(null, results);
+        }
+    })
+};
+
 requestSchema.addBid = function(requestId, placedBy, price, callback){
     var that = this;
     that.findById(requestId, function(err, res){

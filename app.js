@@ -39,7 +39,7 @@ function checkLoggedIn(req,res, next) {
     if (req.user) {
         next();
     }
-    else redirect('/');
+    else res.status(401).send("User is not logged in.");
 }
 
 app.use('/api', checkLoggedIn, apiRoute);
