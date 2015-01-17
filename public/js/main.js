@@ -11,6 +11,9 @@ angular.module('ribbid', ['ngRoute', 'ribbid.filters', 'ribbid.services', 'ribbi
         templateUrl: 'partials/create',
         controller: RequestsController
       })
+      .when('/login', {
+        templateUrl: 'partials/login'
+      })
       .otherwise({
         redirectTo: '/requests'
       });
