@@ -4,29 +4,41 @@
     <div class="form-group">
       <label for="title">Request</label>
       <input name="title" ng-required="true" ng-model="request_form.title" type="text" class="form-control" id="title" placeholder="Mow the lawn">
-      <p ng-show="req_form.title.$invalid && !req_form.title.$pristine" class="help-block">This field is required.</p>
+      <p ng-show="req_form.title.$invalid && !req_form.title.$pristine" class="help-block">A title is required.</p>
     </div>
     <div class="form-group">
       <label for="price">Starting Price</label>
-      <input ng-model="request_form.price" type="text" class="form-control" id="price" placeholder="$1.00">
+      <div class="input-group">
+        <span class="input-group-addon">$</span>
+        <input name="price" ng-required="true" ng-pattern="/^\$?[0-9]*\.?[0-9]*$/" ng-model="request_form.price" type="text" class="form-control" id="price" placeholder="1.00">
+      </div>
+      <p ng-show="req_form.price.$invalid && !req_form.price.$pristine" class="help-block">A valid starting price is required.</p>
     </div>
     <div class="form-group">
       <label for="completed_by">Complete By</label>
-      <input ng-model="request_form.completed_by" type="datetime" class="form-control" id="completed_by" placeholder="6:30 PM">
+      <div class="input-group date" id="datetimepicker">
+        <input name="completed_by" ng-required="true" ng-model="request_form.completed_by" type="datetime" class="form-control" id="completed_by" placeholder="1/18/15 6:30 PM">
+        <span class="input-group-addon"><span class="fa fa-calendar"></span></span>
+      </div>
+      <p ng-show="req_form.completed_by.$invalid && !req_form.completed_by.$pristine" class="help-block">This field is required.</p>
     </div>
     <div class="form-group">
       <label for="location">Location</label>
-      <input ng-model="request_form.location" type="text" class="form-control" id="location" placeholder="314 Chestnut Street, Philadelphia">
+      <input name="location" ng-required="true" ng-model="request_form.location" type="text" class="form-control" id="location" placeholder="314 Chestnut Street, Philadelphia">
+      <p ng-show="req_form.location.$invalid && !req_form.location.$pristine" class="help-block">An address is required.</p>
     </div>
     <div class="form-group">
       <label for="description">Description</label>
-      <textarea ng-model="request_form.description" class="form-control" rows="5" id="description" placeholder="Please provide your own lawnmower. Watch out for the low branches at the edge of the backyard!"></textarea>
+      <textarea name="description" ng-required="true" ng-model="request_form.description" class="form-control" rows="5" id="description" placeholder="Please provide your own lawnmower. Watch out for the low branches at the edge of the backyard!"></textarea>
+      <p ng-show="req_form.description.$invalid && !req_form.description.$pristine" class="help-block">A description is required.</p>
     </div>
     <div class="form-group">
       <label for="tags">Tags</label>
       <input ng-model="request_form.tags" type="text" id="tags" class="form-control" data-role="tagsinput" />
     </div>
-    <button ng-click="submitRequest()" ng-disabled="request_form.$invalid" type="submit" class="btn btn-default">Add Request</button>
+    <div class="center-block">
+    <button ng-click="submitRequest()" ng-disabled="req_form.$invalid" type="submit" class="btn btn-default">Add Request</button>
+    </div>
   </form>
 </div>
 <script src="/js/bootstrap-tagsinput.js"></script>

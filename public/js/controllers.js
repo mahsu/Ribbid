@@ -12,6 +12,7 @@ function RequestsController($scope, $http) {
 
   $scope.request_form = {};
   $scope.submitRequest = function(isValid) {
+    $scope.request_form.price = $scope.request_form.price.replace(/[^0-9.]+/g, "");
     $scope.request_form.tags = $scope.request_form.tags.split(",");
     console.log($scope.request_form);
     $http.post('/api/requests', $scope.request_form)
