@@ -4,7 +4,7 @@ var router = express.Router();
 
 var Request = require('../models/request');
 
-router.post('/', function(req, res) {
+router.post('/requests', function(req, res) {
     var request = {
         title: req.body.title,
         description: req.body.description,
@@ -15,10 +15,23 @@ router.post('/', function(req, res) {
         loc: [req.body.lon, req.body.lat]
     };
     Request.addRequest(request, function(err, res) {
+        console.log(res);
+        res.json(res);
+    });
+});
 
+router.get('/requests', function(req, res) {
+    var loc, rad;
+    rad = 15 || req.query.rad;
+    loc = [req.query.lon, req.query.lat];
+    Request.findRequests(rad, loc, function(err, requests) {
+        if (err) res.send(500);
+        else res.json(requests);
     });
 
+});
 
+router.get('/requests', function(req, res){
     res.render('index', { title: 'Express' });
 });
 
