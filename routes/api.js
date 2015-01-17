@@ -31,8 +31,28 @@ router.get('/requests', function(req, res) {
 
 });
 
-router.get('/requests', function(req, res){
-    res.render('index', { title: 'Express' });
+router.get('/request/:request_id', function(req, res) {
+
+});
+
+router.post('/request/:request_id/bids', function(req, res) {
+
+});
+
+router.get('/request/:request_id/bids', function(req, res){
+
+});
+
+router.post('/request/reviews', function(req, res) {
+
+});
+
+router.get('/request/reviews', function(req, res){
+
+});
+
+router.get('/user/:id', function(req, res){
+
 });
 
 module.exports = router;
