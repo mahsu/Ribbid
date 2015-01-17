@@ -42,7 +42,7 @@ function checkLoggedIn(req,res, next) {
     else redirect('/');
 }
 
-app.get('/api/requests', checkLoggedIn, apiRoute.requests);
+app.use('/api', checkLoggedIn, apiRoute);
 app.use('/', routes);
 app.use('/users', users);
 app.get('/auth/login/:provider', authRoute.login);
