@@ -39,6 +39,11 @@ app.get('/auth/login/:provider', authRoute.login);
 app.get('/auth/callback/:provider', authRoute.loginCallback);
 app.get('/auth/logout', authRoute.logout);
 
+app.get('*', function(req, res) {
+  res.render('index', { title: 'Express' });
+});
+
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
     var err = new Error('Not Found');

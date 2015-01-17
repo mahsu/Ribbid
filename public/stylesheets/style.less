@@ -3,7 +3,7 @@
 
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
-  background-color: #eee;
+  background-color: white;
 }
 
 a {
@@ -138,4 +138,18 @@ nav {
 
 .float-group {
   overflow: hidden;
+}
+
+form {
+  background-color: white;
+  padding: 15px;
+  .bootstrap-tagsinput, .form-control {
+    width: 100%;
+    box-shadow: none;
+    border-radius: 0px;
+    &:focus {
+      border: 1px solid #ccc;
+      box-shadow: none;
+    }
+  }
 }
