@@ -1,5 +1,7 @@
 .idea
 config.json
+*.css
+*.css.min
 
 # Logs
 logs
