@@ -1,3 +1,4 @@
+"use strict";
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -9,6 +10,12 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+var passport = require('passport');
+var mongoose = require('mongoose');
+mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/ribbid');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -22,6 +29,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use('/', routes);
 app.use('/users', users);
@@ -57,5 +66,11 @@ app.use(function(err, req, res, next) {
     });
 });
 
+var debug = require('debug')('ribbid');
 
-module.exports = app;
+app.set('port', process.env.PORT || 3000);
+
+var server = app.listen(app.get('port'), function() {
+    debug('Express server listening on port ' + server.address().port);
+});
+

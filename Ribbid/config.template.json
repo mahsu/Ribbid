@@ -1,0 +1,8 @@
+{
+    "setup": {
+        "_comment": "Secret api keys.",
+        "facebook_clientid": "",
+        "facebook_clientsecret": "",
+        "url": "http://localhost:3000"
+    }
+}
