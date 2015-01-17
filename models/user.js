@@ -1,3 +1,4 @@
+"use strict"
 var mongoose = require('mongoose');
 
 var userSchema = new mongoose.Schema({
@@ -22,7 +23,7 @@ userSchema.statics.findOrCreate = function(profile, callback) {
             var user = new that({
                 provider: profile.provider,
                 providerId: profile.id,
-                profilePic: "https://graph.facebook.com/" + result.fbId + "/picture?width=90&height=90",
+                profilePic: "https://graph.facebook.com/" + profile.fbId + "/picture?width=90&height=90",
                 displayName: profile.displayName,
                 email: (profile.emails && profile.emails.length > 0) ? profile.emails[0].value : null
             });

@@ -3,6 +3,7 @@
         "_comment": "Secret api keys.",
         "facebook_clientid": "",
         "facebook_clientsecret": "",
+        "cookie-secret": "",
         "url": "http://localhost:3000"
     }
 }

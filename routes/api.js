@@ -10,13 +10,13 @@ router.post('/requests', function(req, res) {
         description: req.body.description,
         tags: req.body.tags,
         startingPrice: req.body.price,
-        mustCompleteBy: req.body.completeBy,
+        mustCompleteBy: req.body.completed_by,
         requester: req.user._id,
         loc: [req.body.lon, req.body.lat]
     };
-    Request.addRequest(request, function(err, res) {
-        console.log(res);
-        res.json(res);
+    Request.addRequest(request, function(err, result) {
+        if (err) console.log(err);
+        res.json(result);
     });
 });
 

@@ -4,7 +4,10 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
+var session = require('express-session');
 var bodyParser = require('body-parser');
+
+var config = require('./config.js');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -29,10 +32,11 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(session({secret: config.setup.cookie_secret}))
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
-app.use(passport.session());
+app.use(passport.session({secret: config.setup.cookie_secret}));
 
 
 function checkLoggedIn(req,res, next) {
@@ -50,7 +54,7 @@ app.get('/auth/callback/:provider', authRoute.loginCallback);
 app.get('/auth/logout', authRoute.logout);
 
 app.get('*', function(req, res) {
-  res.render('index', { title: 'Express' });
+  res.render('app', { title: 'Express' });
 });
 
 
@@ -68,6 +72,8 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
+        console.log(err.message);
+        console.log(err);
         res.render('error', {
             message: err.message,
             error: err

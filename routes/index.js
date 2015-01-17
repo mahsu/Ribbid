@@ -4,11 +4,11 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/app', function(req, res) {
-  res.render('index');
+  res.render('app');
 });
 
 router.get('/', function(req, res) {
-  res.render('login')
+  res.render('index')
 });
 
 router.get('/partials/:name', function(req, res) {

@@ -1,3 +1,4 @@
+"use strict";
 var mongoose = require('mongoose');
 
 var bidSchema = new mongoose.Schema({
@@ -20,7 +21,7 @@ var requestSchema = new mongoose.Schema({
 });
 
 //location: [lon, lat]
-requestSchema.addRequest = function(request, callback){
+requestSchema.statics.addRequest = function(request, callback){
     var newRequest = new this(request);
     newRequest.save(function (err){
         callback(err, newRequest);
@@ -28,7 +29,7 @@ requestSchema.addRequest = function(request, callback){
 
 };
 
-requestSchema.deleteRequest = function(id, callback){
+requestSchema.statics.deleteRequest = function(id, callback){
     var that = this;
     that.find({_id: id}).remove(function(err, res) {
         if (err)
@@ -38,7 +39,7 @@ requestSchema.deleteRequest = function(id, callback){
 };
 
 //maxdist in meters
-requestSchema.findRequests = function(maxdist,location, callback) {
+requestSchema.statics.findRequests = function(maxdist,location, callback) {
     var that = this;
     var findParams = {
         loc: {
@@ -60,7 +61,7 @@ requestSchema.findRequests = function(maxdist,location, callback) {
     })
 };
 
-requestSchema.addBid = function(requestId, placedBy, price, callback){
+requestSchema.statics.addBid = function(requestId, placedBy, price, callback){
     var that = this;
     that.findById(requestId, function(err, res){
         if (err) console.log(err);
@@ -71,7 +72,7 @@ requestSchema.addBid = function(requestId, placedBy, price, callback){
     })
 };
 
-requestSchema.deleteBid = function(requestId, bidId, callback){
+requestSchema.statics.deleteBid = function(requestId, bidId, callback){
     if (err) console.log(err);
     var that = this;
     that.findById(requestId, function(err, res) {
