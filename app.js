@@ -9,6 +9,7 @@ var bodyParser = require('body-parser');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var authRoute = require('./routes/auth');
+var apiRoute = require('./routes/api')
 
 var app = express();
 var http = require('http').Server(app);
@@ -33,6 +34,15 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+function checkLoggedIn(req,res, next) {
+    if (req.user) {
+        next();
+    }
+    else redirect('/');
+}
+
+app.use('/api', checkLoggedIn, apiRoute);
 app.use('/', routes);
 app.use('/users', users);
 app.get('/auth/login/:provider', authRoute.login);
