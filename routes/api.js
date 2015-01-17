@@ -2,7 +2,7 @@
 var express = require('express');
 var router = express.Router();
 
-var Request = require('./models/request');
+var Request = require('../models/request');
 
 router.post('/', function(req, res) {
     var request = {
@@ -21,3 +21,5 @@ router.post('/', function(req, res) {
 
     res.render('index', { title: 'Express' });
 });
+
+module.exports = router;

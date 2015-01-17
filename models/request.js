@@ -1,5 +1,7 @@
+var mongoose = require('mongoose');
+
 var bidSchema = new mongoose.Schema({
-    user: {type: Schema.Types.ObjectId, ref: 'User'},
+    user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     price: Number,
     timestamp: {type: Date, default: Date.now}
 });
@@ -10,8 +12,8 @@ var requestSchema = new mongoose.Schema({
     tags: [String],
     mustCompleteBy: Date,
     startingPrice: Number,
-    requester: {type: Schema.Types.ObjectId, ref: 'User'},
-    fulfiller: {type: Schema.Types.ObjectId, ref: 'User'},
+    requester: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    fulfiller: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     loc: {type: [Number], index: '2dsphere'},
     bids: [bidSchema],
     timestamp: {type: Date, default: Date.now}
