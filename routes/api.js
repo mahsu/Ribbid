@@ -10,9 +10,10 @@ router.post('/requests', function(req, res) {
         description: req.body.description,
         tags: req.body.tags,
         startingPrice: req.body.price,
-        mustCompleteBy: req.body.completed_by,
+        mustCompleteBy: new Date(req.body.completed_by),
         requester: req.user._id,
-        loc: [req.body.lon, req.body.lat]
+        loc: [req.body.lon, req.body.lat],
+        address: req.address
     };
     Request.addRequest(request, function(err, result) {
         if (err) console.log(err);
