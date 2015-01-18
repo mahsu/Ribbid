@@ -32,8 +32,9 @@ angular.module('ribbid', ['ngRoute', 'ribbid.filters', 'ribbid.services', 'ribbi
         controller: RequestsController
       })
       .when('/request', {
-        templateUrl: 'partials/request',
-        controller: RequestsController
+            templateUrl: 'partials/request',
+            controller: RequestsController
+      })
       .when('/me/requests_bids', {
         templateUrl: 'partials/requests_bids',
         controller: UserController
