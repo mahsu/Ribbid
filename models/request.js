@@ -65,15 +65,15 @@ requestSchema.statics.findRequests = function(maxdist, location, callback) {
     var point = {type: "Point", coordinates: location};
     console.log(point);
     that.geoNear(point, { maxDistance: maxdist, spherical: true, distanceMultiplier: 3959}, function(err, results, stats){
-        //console.log(err);
-        if (err) {return callback(err);}
-        console.log(results);
-        console.log(stats);
-        var userIds = []; //retrieve userids
-        results.forEach(function(val){
-            userIds.push(val.obj.requesterId)
-        });
-        userIds = _.uniq(userIds);
+            //console.log(err);
+            if (err) {return callback(err);}
+            console.log(results);
+            console.log(stats);
+            var userIds = []; //retrieve userids
+            results.forEach(function(val){
+                userIds.push(val.obj.requesterId)
+            });
+            userIds = _.uniq(userIds);
         //console.log(userIds);
         User.find({_id: {$in: userIds}}, function(err, users){
             var permit = ["displayName", "profilePic", "rating"];
@@ -141,11 +141,11 @@ requestSchema.statics.addReview = function(requestId, userId, newReview, callbac
     that.findById(requestId, function(err, request){
         if (err) return callback(err);
         //deny if not paid
-        if (request.paid == false) {callback("Not paid.")}
+        if (request.paid == false) {return callback("Not paid.")}
         //deny if request incomplete
-        if (request.fulfillerId == null) {callback("Incomplete request.")}
+        if (request.fulfillerId == null) {return callback("Incomplete request.")}
         //deny if not involved in request
-        if (userId != request.fulfillerId && userId != request.requesterId) {callback("Access denied.")}
+        if (userId != request.fulfillerId && userId != request.requesterId) {return callback("Access denied.")}
 
         var otherUser = (userId == request.fulfillerId) ? request.fulfillerId : request.requesterId;
         request.reviews.push(newReview);
@@ -201,23 +201,12 @@ requestSchema.statics.declineRequest = function(userId, requestId, callback){
     })
 };
 
+
 //todo callback
 //check if a request is locked for changes (exclude reviews)
 function __isLocked(review) {
     return review.paid;
 }
 
-function __getPublicUser(userId, callback) {
-
-    User.findById(userId, function(err, user){
-        console.log(user);
-        if (err) {return callback(err)}
-        var sanitizedUser={};
-        permit.forEach(function(val){
-            sanitizedUser[val] = user[val];
-        });
-        return callback(null, sanitizedUser);
-    });
-}
 
 module.exports = mongoose.model('Request', requestSchema);
