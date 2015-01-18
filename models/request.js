@@ -1,6 +1,8 @@
 "use strict";
 var mongoose = require('mongoose');
 var User = require('./user');
+var _ = require("underscore");
+var async = require("async");
 
 var bidSchema = new mongoose.Schema({
     userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
@@ -67,7 +69,43 @@ requestSchema.statics.findRequests = function(maxdist, location, callback) {
         if (err) {return callback(err);}
         console.log(results);
         console.log(stats);
-        callback(null, results);
+        var userIds = []; //retrieve userids
+        results.forEach(function(val){
+            userIds.push(val.obj.requesterId)
+        });
+        userIds = _.uniq(userIds);
+        //console.log(userIds);
+        User.find({_id: {$in: userIds}}, function(err, users){
+            var permit = ["displayName", "profilePic", "rating"];
+            users = _.map(users, function(user){
+                var fields = {}, obj = {};
+                for (var i=0; i<permit.length; i++) {
+                    fields[permit[i]] = user[permit[i]]
+                }
+                    var userid = user._id;
+                obj[userid]= fields;
+                return obj;
+            });
+            //console.log(users);
+            results = _.map(results, function(val){
+                var userId = val.obj.requesterId;
+                //console.log(userId);
+                for (var i=0; i<users.length; i++) {
+                    if (Object.keys(users[i])[0] == userId) {
+                        val.obj._doc.user = {};
+                        val.obj._doc.user = users[i][userId];
+                        //console.log(val);
+                        //console.log(users[i][userId]);
+                        break;
+                    }
+                }
+                return val;
+            });
+            console.log(results);
+        });
+
+        //get public user data for each request
+
     });
 };
 
@@ -149,9 +187,23 @@ requestSchema.statics.declineRequest = function(userId, requestId, callback){
     })
 };
 
+//todo callback
 //check if a request is locked for changes (exclude reviews)
 function __isLocked(review) {
     return review.paid;
+}
+
+function __getPublicUser(userId, callback) {
+
+    User.findById(userId, function(err, user){
+        console.log(user);
+        if (err) {return callback(err)}
+        var sanitizedUser={};
+        permit.forEach(function(val){
+            sanitizedUser[val] = user[val];
+        });
+        return callback(null, sanitizedUser);
+    });
 }
 
 module.exports = mongoose.model('Request', requestSchema);
