@@ -36,7 +36,7 @@ exports.login = function(req, res) {
 
 exports.loginCallback = function(req, res) {
     return passport.authenticate(req.params.provider, {
-        successRedirect: '/',
+        successRedirect: '/app',
         failureRedirect: '/'
     })(req, res);
 };

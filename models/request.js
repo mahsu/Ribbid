@@ -1,3 +1,4 @@
+"use strict";
 var mongoose = require('mongoose');
 
 var bidSchema = new mongoose.Schema({
@@ -14,13 +15,14 @@ var requestSchema = new mongoose.Schema({
     startingPrice: Number,
     requester: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     fulfiller: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    address: String,
     loc: {type: [Number], index: '2dsphere'},
     bids: [bidSchema],
     timestamp: {type: Date, default: Date.now}
 });
 
 //location: [lon, lat]
-requestSchema.addRequest = function(request, callback){
+requestSchema.statics.addRequest = function(request, callback){
     var newRequest = new this(request);
     newRequest.save(function (err){
         callback(err, newRequest);
@@ -28,7 +30,7 @@ requestSchema.addRequest = function(request, callback){
 
 };
 
-requestSchema.deleteRequest = function(id, callback){
+requestSchema.statics.deleteRequest = function(id, callback){
     var that = this;
     that.find({_id: id}).remove(function(err, res) {
         if (err)
@@ -37,7 +39,30 @@ requestSchema.deleteRequest = function(id, callback){
     });
 };
 
-requestSchema.addBid = function(requestId, placedBy, price, callback){
+//maxdist in meters
+requestSchema.statics.findRequests = function(maxdist,location, callback) {
+    var that = this;
+    var findParams = {
+        loc: {
+            $near: {
+                $geometry: {
+                    type: "Point",
+                    coordinates: location
+                },
+                $maxDistance: maxdist
+            }
+        }
+    };
+    that.find(findParams, function(err, results) {
+        if (err)
+            callback(err);
+        else {
+            callback(null, results);
+        }
+    })
+};
+
+requestSchema.statics.addBid = function(requestId, placedBy, price, callback){
     var that = this;
     that.findById(requestId, function(err, res){
         if (err) console.log(err);
@@ -48,7 +73,7 @@ requestSchema.addBid = function(requestId, placedBy, price, callback){
     })
 };
 
-requestSchema.deleteBid = function(requestId, bidId, callback){
+requestSchema.statics.deleteBid = function(requestId, bidId, callback){
     if (err) console.log(err);
     var that = this;
     that.findById(requestId, function(err, res) {
