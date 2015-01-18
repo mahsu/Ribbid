@@ -101,10 +101,9 @@ requestSchema.statics.findRequests = function(maxdist, location, callback) {
                 }
                 return val;
             });
-            console.log(results);
+            //console.log(results);
+            callback(err, results)
         });
-
-        //get public user data for each request
 
     });
 };

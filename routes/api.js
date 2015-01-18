@@ -116,7 +116,14 @@ router.get('/me', function(req, res) {
 
 //return my recent requests and bids
 router.get('/me/requests_bids', function(req, res) {
-
+    var recent = {};
+    Request.find({requesterId: req.user._id}, function(err, requests){
+        Request.find({'bids.userId': req.user._id}, function(err, bids){
+            recent.requests = requests;
+            recent.bids = bids;
+            res.send(recent);
+        })
+    });
 });
 
 
