@@ -80,15 +80,6 @@ router.post('/request/:id/reviews', function(req, res) {
 });
 
 
-router.get('/request/:id/reviews', function(req, res){
-    Request.findById(req.params.id, function(err, request) {
-        if (err) res.send(500);
-        else {
-            res.send(result.reviews)
-        }
-    })
-});
-
 //accept a bid as the requester
 router.put('/request/:request_id/bid/:bid_id/accept', function(req, res){
     Request.acceptRequest(req.user, req.params.request_id, req.params.bid_id, function(err, request) {
@@ -105,11 +96,12 @@ router.patch('/request/:id/decline', function(req, res){
     });
 });
 
+
 //pay and lock the request
 router.patch('/request/pay', function(req, res){
-    //todo payment logic
 
 });
+
 
 /* aggregate data */
 
