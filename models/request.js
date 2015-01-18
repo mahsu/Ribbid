@@ -1,8 +1,9 @@
 "use strict";
 var mongoose = require('mongoose');
+var User = require('user');
 
 var bidSchema = new mongoose.Schema({
-    user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     price: Number,
     accepted: Boolean,
     timestamp: {type: Date, default: Date.now}
@@ -11,8 +12,8 @@ var bidSchema = new mongoose.Schema({
 var reviewSchema = new mongoose.Schema({
     rating: Number,
     comment: String,
-    by: {type: Schema.Types.ObjectId, ref: 'User'},
-    for: {type: Schema.Types.ObjectId, ref: 'User'},
+    byId: {type: Schema.Types.ObjectId, ref: 'User'},
+    forId: {type: Schema.Types.ObjectId, ref: 'User'},
     timestamp: {type: Date, default: Date.now}
 });
 
@@ -22,12 +23,12 @@ var requestSchema = new mongoose.Schema({
     tags: [String],
     mustCompleteBy: Date,
     startingPrice: Number,
-    requester: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    fulfiller: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    requesterId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    fulfillerId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     address: String,
     loc: {type: [Number], index: '2dsphere'},
     bids: [bidSchema],
-    accepted_bid: {type: mongoose.Schema.Types.ObjectId},
+    acceptedBidId: {type: mongoose.Schema.Types.ObjectId},
     paid: Boolean,
     reviews: [reviewSchema],
     timestamp: {type: Date, default: Date.now}
@@ -42,8 +43,10 @@ requestSchema.statics.addRequest = function(request, callback){
 
 };
 
+//todo restrict access
 requestSchema.statics.deleteRequest = function(id, callback){
     var that = this;
+    if (__isLocked()) {return callback()}
     that.findById(id).remove(function(err, res) {
         if (err)
             console.log(err);
@@ -74,27 +77,29 @@ requestSchema.statics.findRequests = function(maxdist,location, callback) {
     })
 };
 
+//todo check date
 requestSchema.statics.addBid = function(requestId, placedBy, price, callback){
     var that = this;
+    if (__isLocked()) {return callback()}
     that.findById(requestId, function(err, res){
         if (err) return callback(err);
-        res.bids.push({user: placedBy, price: price});
+        res.bids.push({userId: placedBy, price: price});
         res.save(function(err){
             callback(err);
         })
     })
 };
 
-
+//todo check date
 requestSchema.statics.deleteBid = function(requestId, bidId, callback){
     var that = this;
+    if (__isLocked()){return callback()}
     that.findById(requestId, function(err, res) {
         var doc = res.bids.id(bidId).remove();
         doc.save(function(err){
             callback(err);
         });
     })
-
 };
 
 //todo check review constraints - one per user, valid user
@@ -110,7 +115,47 @@ requestSchema.statics.addReview = function(requestId, userId, newReview, callbac
     })
 };
 
-//check if a request is locked for changes
+//todo check date
+//accept a bid as a requester
+requestSchema.statics.acceptRequest = function(userId, requestId, bidId, callback){
+    var that = this;
+    if (__isLocked()) {return callback()}
+    that.findById(requestId, function(err, request){
+        if (err) {return callback(err)}
+        //check that userId is the requester
+        if (request.requesterId == userId) {
+            //check that acceptedBidId is null
+            if (request.acceptedBidId == null && request.fulfillerId == null) {
+                var acceptedBid = request.bids._id(bidId);
+                request.acceptedBidId = acceptedBid._id;
+                request.fulfiller = acceptedBid.userId;
+                request.save(function(err){
+                    return callback(err);
+                });
+            }
+        }
+        callback("Invariant error.")
+    });
+};
+
+requestSchema.statics.declineRequest = function(userId, requestId, callback){
+    var that = this;
+    if (__isLocked()) {return callback()}
+    that.findById(requestId, function(err, request){
+        if (err) {return callback(err)}
+        //check that request has been accepted
+        if (request.acceptedBidId == null) {return callback("Request not accepted.")}
+        //check that user making the request had been accepted
+        if (request.fulfillerId != userId) {return callback("No permission.")}
+        request.acceptedBidId = null;
+        request.fulfillerId = null;
+        request.save(function(err){
+            callback(err);
+        })
+    })
+};
+
+//check if a request is locked for changes (exclude reviews)
 function __isLocked(review) {
     return review.paid;
 }
