@@ -7,15 +7,15 @@ var async = require("async");
 var bidSchema = new mongoose.Schema({
     userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     price: Number,
-    accepted: Boolean,
+    accepted: {type: Boolean, default: false},
     timestamp: {type: Date, default: Date.now}
 });
 
 var reviewSchema = new mongoose.Schema({
     rating: Number,
     comment: String,
-    byId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    forId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    byId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', unique: true},
+    //forId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     timestamp: {type: Date, default: Date.now}
 });
 
@@ -26,12 +26,12 @@ var requestSchema = new mongoose.Schema({
     mustCompleteBy: Date,
     startingPrice: Number,
     requesterId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    fulfillerId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    fulfillerId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null},
     address: String,
     loc: { type: { type: String }, coordinates: [Number]},
     bids: [bidSchema],
     acceptedBidId: {type: mongoose.Schema.Types.ObjectId},
-    paid: Boolean,
+    paid: {type: Boolean, default: false},
     reviews: [reviewSchema],
     timestamp: {type: Date, default: Date.now}
 });
@@ -137,11 +137,26 @@ requestSchema.statics.deleteBid = function(requestId, bidId, callback){
 //todo validate review fields, must be paid
 requestSchema.statics.addReview = function(requestId, userId, newReview, callback) {
     var that = this;
+    var rating = newReview.rating;
     that.findById(requestId, function(err, request){
         if (err) return callback(err);
+        //deny if not paid
+        if (request.paid == false) {callback("Not paid.")}
+        //deny if request incomplete
+        if (request.fulfillerId == null) {callback("Incomplete request.")}
+        //deny if not involved in request
+        if (userId != request.fulfillerId && userId != request.requesterId) {callback("Access denied.")}
+
+        var otherUser = (userId == request.fulfillerId) ? request.fulfillerId : request.requesterId;
         request.reviews.push(newReview);
         request.save(function(err) {
-            callback(err);
+            if (err) return callback(err);
+            User.findbyId(otherUser, function(err, user){
+                user.rating.push(rating);
+                user.save(function(err){
+                    callback(err);
+                })
+            })
         })
     })
 };
