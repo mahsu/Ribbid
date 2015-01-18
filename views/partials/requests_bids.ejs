@@ -14,18 +14,48 @@
 <div id="content-wrap">
   <div class="tab active" id="requests">
     <ul class="list-view">
+      <!--
       <li class="list-item accepted" ng-repeat="a in [1,2,3]">
         <div class="item-wrap">
           <div class="picture">
             <img src="https://scontent-a-lga.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/10922822_396217957207564_6547384044584887570_n.jpg?oh=5bb3bf03ae730fb0266e298716eef2a7&oe=55671980" />
           </div>
           <div class="float-group">
-            <div class="name">Austin Eng accepted your request!</div>
+            <div class="name">You accepted Austin Eng's bid of $12.00!</div>
             <div class="title">This is a title</div>
           </div>
           <div class="clearfix">
         </div>
       </li>
+      -->
+      <li class="list-item accepted" ng-repeat="request in fulfilled_requests">
+        <div class="item-wrap">
+          <div class="picture">
+            <img src="https://scontent-a-lga.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/10922822_396217957207564_6547384044584887570_n.jpg?oh=5bb3bf03ae730fb0266e298716eef2a7&oe=55671980" />
+          </div>
+          <div class="float-group">
+            <div class="name">You accepted Austin Eng's bid of <bidfind bids={{request.bids}}></bidfind>!</div>
+            <div class="title">{{request.title}}</div>
+          </div>
+          <div class="clearfix">
+      </li>
+      <li class="list-item" ng-repeat="request in unfulfilled_requests">
+        <a href="/me/request/{{request._id}}" class="item-wrap">
+          <div class="picture">
+            <img src="https://scontent-a-lga.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/10922822_396217957207564_6547384044584887570_n.jpg?oh=5bb3bf03ae730fb0266e298716eef2a7&oe=55671980" />
+          </div>
+          <ul class="stats">
+            <li class="bid"><bidmin bids={{request.bids}}></bidmin></li>
+            <li class="time"><fromnow date={{request.mustCompleteBy}}></fromnow></li>
+            <li class="dist">2</li>
+          </ul>
+          <div class="float-group">
+            <div class="name">Lowest Bidder: Austin Eng</div>
+            <div class="description"><span class="title">{{request.title}}</span>{{request.description | cut:true:80:'...'}}</div>
+          </div>
+        </a>
+      </li>
+      <!--
       <li class="list-item" ng-repeat="a in [1,2,3,4,5,6]">
         <div class="item-wrap">
           <div class="picture">
@@ -42,10 +72,12 @@
           </div>
         </div>
       </li>
+      -->
     </ul>
   </div>
   <div class="tab" id="bids">
     <ul class="list-view">
+      <!--
       <li class="list-item accepted" ng-repeat="a in [1]">
         <div class="item-wrap">
           <div class="picture">
@@ -61,6 +93,39 @@
           </div>
         </div>
       </li>
+      -->
+      <li class="list-item" ng-repeat="bid in accepted_bids">
+        <div class="item-wrap">
+          <div class="picture">
+            <img src="https://scontent-a-lga.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/10922822_396217957207564_6547384044584887570_n.jpg?oh=5bb3bf03ae730fb0266e298716eef2a7&oe=55671980" />
+          </div>
+          <ul class="stats">
+            <li class="time"><fromnow date={{bid.mustCompleteBy}}></fromnow></li>
+            <li class="dist">2</li>
+          </ul>
+          <div class="float-group">
+            <div class="name">Austin Eng accepted your offer of <span class="bid">{{bid.bid.price}}</span></div>
+            <div class="description"><span class="title">{{bid.title}}</span>{{bid.description | cut:true:80:'...'}}</div>
+          </div>
+        </div>
+      </li>
+      <li class="list-item" ng-repeat="bid in unaccepted_bids">
+        <div class="item-wrap">
+          <div class="picture">
+            <img src="https://scontent-a-lga.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/10922822_396217957207564_6547384044584887570_n.jpg?oh=5bb3bf03ae730fb0266e298716eef2a7&oe=55671980" />
+          </div>
+          <ul class="stats">
+            <li class="bid">7.00</li>
+            <li class="time"><fromnow date={{bid.mustCompleteBy}}></fromnow></li>
+            <li class="dist">2</li>
+          </ul>
+          <div class="float-group">
+            <div class="name">Austin Eng<span class="bid">{{bid.bid.price}}</span></div>
+            <div class="description"><span class="title">{{bid.title}}</span>{{bid.description | cut:true:80:'...'}}</div>
+          </div>
+        </div>
+      </li>
+      <!--
       <li class="list-item" ng-repeat="a in [1,2,3,4,5,6]">
         <div class="item-wrap">
           <div class="picture">
@@ -77,6 +142,7 @@
           </div>
         </div>
       </li>
+      -->
     </ul>
   </div>
 </div>

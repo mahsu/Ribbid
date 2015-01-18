@@ -204,6 +204,33 @@ nav {
     padding: 15px 20px;
   }
 
+  .item-wrap.accept-wrap {
+    display: none;
+    color: white;
+    font-size: 24px;
+    text-align: center;
+    i {
+      height: 31px;
+      line-height: 31px;
+      &.left {
+        float: left;
+      }
+      &.right {
+        float: right;
+      }
+    }
+  }
+  .accepting {
+    background-color: @light-green!important;
+    .item-wrap {
+      display: none;
+      &.accept-wrap {
+        display: block;
+        height: 31px;
+      }
+    }
+  }
+
   .item-wrap {
     color: #222;
     &:hover {
@@ -323,7 +350,7 @@ nav {
   .timestamp {
     color: #ccc;
     &::before {
-      content: " \2014  at ";
+      content: " \2014  ";
     }
   }
 }

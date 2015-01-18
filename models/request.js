@@ -169,18 +169,24 @@ requestSchema.statics.acceptRequest = function(userId, requestId, bidId, callbac
     that.findById(requestId, function(err, request){
         if (err) {return callback(err)}
         //check that userId is the requester
-        if (request.requesterId == userId) {
+        if (request.requesterId.equals(userId._id)) {
             //check that acceptedBidId is null
+            console.log(request)
             if (request.acceptedBidId == null && request.fulfillerId == null) {
-                var acceptedBid = request.bids._id(bidId);
+                var acceptedBid = request.bids.filter(function(el) {
+                    return el._id.equals(bidId)
+                })[0];
                 request.acceptedBidId = acceptedBid._id;
-                request.fulfiller = acceptedBid.userId;
+                request.fulfillerId = acceptedBid.userId;
+                acceptedBid.accepted = true;
+                console.log(request);
                 request.save(function(err){
+                    console.log(err);
                     return callback(err);
                 });
             }
         }
-        callback("Invariant error.")
+        else callback("Invariant error.")
     });
 };
 
@@ -205,7 +211,8 @@ requestSchema.statics.declineRequest = function(userId, requestId, callback){
 //todo callback
 //check if a request is locked for changes (exclude reviews)
 function __isLocked(review) {
-    return review.paid;
+    return false;
+    //return review.paid;
 }
 
 
