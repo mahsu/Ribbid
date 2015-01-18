@@ -57,10 +57,12 @@ requestSchema.statics.deleteRequest = function(id, callback){
 };
 
 //maxdist in meters, convert to miles
+//convert to miles
 requestSchema.statics.findRequests = function(maxdist, location, callback) {
     var that = this;
-    var point = {type: "point", coordinates: location};
-    that.geoNear(point, { maxDistance: maxdist, spherical: true, distanceMultiplier: 0.000621371}, function(err, results, stats){
+    var point = {type: "Point", coordinates: location};
+    console.log(point);
+    that.geoNear(point, { maxDistance: maxdist, spherical: true, distanceMultiplier: 3959}, function(err, results, stats){
         console.log(err);
         if (err) {return callback(err);}
         console.log(results);
