@@ -31,7 +31,11 @@ passport.deserializeUser(function(id, done) {
 
 exports.login = function(req, res) {
     //todo try catch invalid login
-    return passport.authenticate(req.params.provider, {scope: ['public_profile', 'email', 'user_friends']})(req, res);
+    try {
+        return passport.authenticate(req.params.provider, {scope: ['public_profile', 'email', 'user_friends']})(req, res);
+    } catch(e) {
+
+    }
 };
 
 exports.loginCallback = function(req, res) {
