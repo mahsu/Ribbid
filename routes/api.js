@@ -3,21 +3,21 @@ var express = require('express');
 var router = express.Router();
 
 var Request = require('../models/request');
-
+var User = require('../models/user');
+var _ = require('underscore');
 var RADIUS_OF_EARTH = 3959;
 
-//todo: empty tags is string
 router.post('/requests', function(req, res) {
     var point = {type: "Point", coordinates: [parseFloat(req.body.location.lon), parseFloat(req.body.location.lat)]};
     var request = {
         title: req.body.title,
         description: req.body.description,
         tags: req.body.tags,
-        startingPrice: req.body.price,
+        startingPrice: req.body.start_price,
         mustCompleteBy: new Date(req.body.completed_by),
         requesterId: req.user._id,
         loc: point,
-        address: req.address
+        address: req.body.address
     };
     console.log(request);
     Request.addRequest(request, function(err, result) {
@@ -40,22 +40,28 @@ router.get('/requests', function(req, res) {
 
 router.get('/request/:id', function(req, res) {
     Request.findById(req.params.id, function(err, request) {
-        if (err) res.send(500);
-        else res.json(request);
-    })
+        __injectUser(request,"requesterId", function(err,result){
+            request = result;
+            __injectUsers(request.bids,"userId", function(err, result){
+                request.bids = result;
 
+                if (err) res.status(500).send(err);
+                else res.json(request);
+            })
+        });
+    })
 });
 
 router.post('/request/:id/bids', function(req, res) {
     Request.addBid(req.params.id,req.user._id, req.query.price, function(err, res){
-        if (err) res.send(500);
+        if (err) res.status(500).send(err);
         else res.json(request);
     });
 });
 
 router.get('/request/:id/bids', function(req, res){
     Request.findById(req.params.id, function(err, request) {
-        if (err) res.send(500);
+        if (err) res.status(500).send(err);
         else {
             res.send(request.bids);
         }
@@ -74,8 +80,8 @@ router.post('/request/:id/reviews', function(req, res) {
         by: req.user._id
     };
 
-    Request.addReview(req.params.id, req.user._id, review, function(err, request) {
-        if (err) res.send(500);
+    Request.addReview(req.params.id, req.user._id, review, function(err, result) {
+        if (err) res.status(500).send(err);
         else {
             res.send(result.reviews);
         }
@@ -113,6 +119,7 @@ router.get('/user/:id', function(req, res){
 
 });
 
+//todo public params
 router.get('/me', function(req, res) {
    res.send(req.user);
 });
@@ -129,5 +136,55 @@ router.get('/me/requests_bids', function(req, res) {
     });
 });
 
+function __getPublicUser(userId, callback) {
+    User.findById(userId, function(err, user){
+        var permit = ["displayName", "profilePic", "rating"];
+        if (err) {return callback(err)}
+        var sanitizedUser={};
+        permit.forEach(function(val){
+            sanitizedUser[val] = user[val];
+        });
+        return callback(null, sanitizedUser);
+    });
+}
+
+//target is a single user
+function __injectUser(target, userIdParam, callback) {
+    var userid = target[userIdParam];
+    __getPublicUser(userid, function(err, userfields){
+        target._doc.user = {};
+        target._doc.user = userfields;
+        callback(null, target);
+    })
+}
+//target is an array
+//userIdParam is the param in which userid for searching can be found
+function __injectUsers(target, userIdParam, callback){
+    var userList = [];
+    target.forEach(function(val){
+        var userid = val[userIdParam];
+        __getPublicUser(userid, function(err, res){
+            var userObj = {};
+            userObj[userid] = res;
+            userList.push(userObj);
+        });
+    });
+    target = _.map(target, function(val){
+        var userid = val[userIdParam];
+        //console.log(userId);
+        for (var i=0; i<userList.length; i++) {
+            if (Object.keys(users[i])[0] == userid) {
+                val._doc.user = {};
+                val._doc.user = users[i][userid];
+                //console.log(val);
+                //console.log(users[i][userId]);
+                break;
+            }
+        }
+        return val;
+    });
+    //console.log(results);
+    callback(null, target)
+}
 
 module.exports = router;
