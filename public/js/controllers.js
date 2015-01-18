@@ -100,6 +100,10 @@ function RequestController($scope, $http, $routeParams) {
             position: $scope.pos,
             map: map
           });
+           marker = new google.maps.Marker({
+            position: $scope.drop_off,
+            map: map
+          });
           map.fitBounds($scope.bounds);
           map.panToBounds($scope.bounds);
         }
