@@ -16,8 +16,16 @@
     <div class="clearfix"></div>
     <div class="description">{{request.description}}</div>
   </div>
-  <map zoom="14" style="width: 100%; height: 400px;"></map>
-	<ul class="list-view" id="request-page">
+  <map
+  zoom="14"
+  disable-default-u-i="true"
+  disable-double-click-zoom="true"
+  draggable="false"
+  keyboard-shortcuts="false"
+  scrollWheel="false"
+  style="width: 100%; height: 400px;"></map>
+
+  <ul class="list-view" id="request-page">
     <li ng-hide="making_bid" ng-click="startBid()" class="list-item text-item"><a href="#"><i class="fa fa-plus"> Make a Bid</i></a></li>
     <li ng-class="{making_bid: making_bid}" ng-show="making_bid" class="list-item text-item"><form ng-submit="makeBid(bid)"><input placeholder="Enter a Bid" ng-blur="cancelBid()" ng-model="bid" id="bidAmnt"></input></form></li>
     <li class="list-item" ng-repeat="a in [1,2,3,4,5,6,7,8,9]">
