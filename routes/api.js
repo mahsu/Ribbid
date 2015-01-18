@@ -6,6 +6,7 @@ var Request = require('../models/request');
 
 //todo: empty tags is string
 router.post('/requests', function(req, res) {
+    var point = {type: "Point", coordinates: [req.body.location.lon, req.body.location.lat]};
     var request = {
         title: req.body.title,
         description: req.body.description,
@@ -13,9 +14,10 @@ router.post('/requests', function(req, res) {
         startingPrice: req.body.price,
         mustCompleteBy: new Date(req.body.completed_by),
         requesterId: req.user._id,
-        loc: [req.body.lon, req.body.lat],
+        loc: point,
         address: req.address
     };
+    console.log(request);
     Request.addRequest(request, function(err, result) {
         if (err) console.log(err);
         res.json(result);
@@ -27,7 +29,7 @@ router.get('/requests', function(req, res) {
     rad = 15 || req.query.rad;
     loc = [req.query.lon, req.query.lat];
     Request.findRequests(rad, loc, function(err, requests) {
-        if (err) res.send(500);
+        if (err) res.status(500).send(err);
         else res.json(requests);
     });
 
@@ -102,6 +104,7 @@ router.patch('/request/:id/decline', function(req, res){
 
 //pay and lock the request
 router.patch('/request/pay', function(req, res){
+    //todo payment logic
 
 });
 
