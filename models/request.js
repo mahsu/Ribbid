@@ -11,8 +11,8 @@ var bidSchema = new mongoose.Schema({
 var reviewSchema = new mongoose.Schema({
     rating: Number,
     comment: String,
-    by: {type: Schema.Types.ObjectId, ref: 'User'},
-    for: {type: Schema.Types.ObjectId, ref: 'User'},
+    by: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    for: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     timestamp: {type: Date, default: Date.now}
 });
 

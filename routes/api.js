@@ -3,7 +3,6 @@ var express = require('express');
 var router = express.Router();
 
 var Request = require('../models/request');
-var currentUser = req.user;
 
 //todo: empty tags is string
 router.post('/requests', function(req, res) {
@@ -13,7 +12,7 @@ router.post('/requests', function(req, res) {
         tags: req.body.tags,
         startingPrice: req.body.price,
         mustCompleteBy: new Date(req.body.completed_by),
-        requester: currentUser._id,
+        requester: req.user._id,
         loc: [req.body.lon, req.body.lat],
         address: req.address
     };
@@ -43,7 +42,7 @@ router.get('/request/:id', function(req, res) {
 });
 
 router.post('/request/:id/bids', function(req, res) {
-    Request.addBid(req.params.id,currentUser._id, req.query.price, function(err, res){
+    Request.addBid(req.params.id,req.user._id, req.query.price, function(err, res){
         if (err) res.send(500);
         else res.json(request);
     });
@@ -59,15 +58,15 @@ router.get('/request/:id/bids', function(req, res){
 });
 
 //todo check uniqueness constraints
-//todo duplicate currentUser._id passing
+//todo duplicate req.user._id passing
 router.post('/request/:id/reviews', function(req, res) {
     var review = {
         rating: req.body.rating,
         comment: req.body.comment,
-        by: currentUser.__id
+        by: req.user.__id
     };
 
-    Request.addReview(req.params.id, currentUser._id, review, function(err, request) {
+    Request.addReview(req.params.id, req.user._id, review, function(err, request) {
         if (err) res.send(500);
         else {
             res.send(result.reviews);
@@ -108,7 +107,7 @@ router.patch('/request/pay', function(req, res){
 /* aggregate data */
 
 router.get('/me', function(req, res) {
-   res.send(currentUser);
+   res.send(req.user);
 });
 
 //return my recent requests and bids
