@@ -4,6 +4,15 @@ var mongoose = require('mongoose');
 var bidSchema = new mongoose.Schema({
     user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     price: Number,
+    accepted: Boolean,
+    timestamp: {type: Date, default: Date.now}
+});
+
+var reviewSchema = new mongoose.Schema({
+    rating: Number,
+    comment: String,
+    by: {type: Schema.Types.ObjectId, ref: 'User'},
+    for: {type: Schema.Types.ObjectId, ref: 'User'},
     timestamp: {type: Date, default: Date.now}
 });
 
@@ -18,6 +27,9 @@ var requestSchema = new mongoose.Schema({
     address: String,
     loc: {type: [Number], index: '2dsphere'},
     bids: [bidSchema],
+    accepted_bid: {type: mongoose.Schema.Types.ObjectId},
+    paid: Boolean,
+    reviews: [reviewSchema],
     timestamp: {type: Date, default: Date.now}
 });
 
@@ -32,7 +44,7 @@ requestSchema.statics.addRequest = function(request, callback){
 
 requestSchema.statics.deleteRequest = function(id, callback){
     var that = this;
-    that.find({_id: id}).remove(function(err, res) {
+    that.findById(id).remove(function(err, res) {
         if (err)
             console.log(err);
         callback(err, res);
@@ -65,7 +77,7 @@ requestSchema.statics.findRequests = function(maxdist,location, callback) {
 requestSchema.statics.addBid = function(requestId, placedBy, price, callback){
     var that = this;
     that.findById(requestId, function(err, res){
-        if (err) console.log(err);
+        if (err) return callback(err);
         res.bids.push({user: placedBy, price: price});
         res.save(function(err){
             callback(err);
@@ -73,8 +85,8 @@ requestSchema.statics.addBid = function(requestId, placedBy, price, callback){
     })
 };
 
+
 requestSchema.statics.deleteBid = function(requestId, bidId, callback){
-    if (err) console.log(err);
     var that = this;
     that.findById(requestId, function(err, res) {
         var doc = res.bids.id(bidId).remove();
@@ -84,5 +96,23 @@ requestSchema.statics.deleteBid = function(requestId, bidId, callback){
     })
 
 };
+
+//todo check review constraints - one per user, valid user
+//todo validate review fields, must be paid
+requestSchema.statics.addReview = function(requestId, userId, newReview, callback) {
+    var that = this;
+    that.findById(requestId, function(err, request){
+        if (err) return callback(err);
+        request.reviews.push(newReview);
+        request.save(function(err) {
+            callback(err);
+        })
+    })
+};
+
+//check if a request is locked for changes
+function __isLocked(review) {
+    return review.paid;
+}
 
 module.exports = mongoose.model('Request', requestSchema);
