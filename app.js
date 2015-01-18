@@ -39,7 +39,7 @@ app.use(passport.initialize());
 app.use(passport.session({secret: config.setup.cookie_secret}));
 
 
-function checkLoggedIn(req,res, next) {
+function requireAuthentication(req,res, next) {
     if (req.user) {
         next();
     }
