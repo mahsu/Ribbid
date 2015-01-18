@@ -63,10 +63,11 @@ requestSchema.statics.findRequests = function(maxdist, location, callback) {
     var point = {type: "Point", coordinates: location};
     console.log(point);
     that.geoNear(point, { maxDistance: maxdist, spherical: true, distanceMultiplier: 3959}, function(err, results, stats){
-        console.log(err);
+        //console.log(err);
         if (err) {return callback(err);}
         console.log(results);
         console.log(stats);
+        callback(null, results);
     });
 };
 

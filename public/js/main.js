@@ -35,7 +35,6 @@ angular.module('ribbid', ['ngAnimate', 'ngRoute', 'ribbid.filters', 'ribbid.serv
             templateUrl: 'partials/request',
             controller: RequestsController
       })
-      })
       .when('/me/requests_bids', {
         templateUrl: 'partials/requests_bids',
         controller: UserController
