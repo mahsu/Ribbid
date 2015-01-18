@@ -27,7 +27,7 @@ function RequestsController($scope, $http, $location) {
         console.log($scope.request_form)
         $http.post('/api/requests', $scope.request_form)
         .success(function(data) {
-          $location.path('/requests');
+          //$location.path('/requests');
         });
       }
     });
