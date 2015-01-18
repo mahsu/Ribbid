@@ -62,7 +62,7 @@ function RequestController($scope, $http, $routeParams) {
   $scope.makeBid = function() {
     if ($scope.bid && $scope.bid.match(/^\$?[0-9]*\.?[0-9]*$/)) {
       var bid = $scope.bid.replace(/[^0-9.]+/g, "");
-      $http.post('/request/' + $routeParams.id + '/bids', {
+      $http.post('/api/request/' + $routeParams.id + '/bids', {
         price: bid
       }).success(function() {
         $http.get('/api/request/' + $routeParams.id).success(function(data, status, headers, config) {
