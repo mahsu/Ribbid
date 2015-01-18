@@ -194,13 +194,22 @@ router.get('/me', function(req, res) {
 router.get('/me/requests_bids', function(req, res) {
     var recent = {};
     Request.find({requesterId: req.user._id}, function(err, requests){
-        Request.find({'bids.userId': req.user._id}, function(err, bids){
-            __getPublicUser(req.user._id, function(err, me){
-                recent.requests = requests;
-                recent.bids = bids;
-                recent.me = me;
-                res.send(recent);
+        requests.forEach(function(request, ind){
+            __injectUsers(request.bids, "userId", function(err, bids) {
+                requests[ind].bids = bids;
+
+                if (ind == requests.length - 1) {
+                    Request.find({'bids.userId': req.user._id}, function (err, bids) {
+                        __getPublicUser(req.user._id, function (err, me) {
+                            recent.requests = requests;
+                            recent.bids = bids;
+                            recent.me = me;
+                            res.send(recent);
+                        });
+                    });
+                }
             });
+
         });
     });
 });
