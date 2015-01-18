@@ -17,4 +17,35 @@ angular.module('ribbid.directives', [])
         });
       }
     }
+  })
+  .directive('bidmin', function() {
+    return {
+      restrict: 'E',
+      link: function(scope, element, attrs) {
+        attrs.$observe("bids", function (bids) {
+          bids = JSON.parse(bids);
+          var min = bids[0].price;
+          for(var i = 1; i < bids.length; i++) {
+            if (bids[i].price < min) {
+              min = bids[i].price;
+            }
+          }
+          element.text("$" + min.toFixed(2));
+        });
+      }
+    }
+  })
+  .directive('bidfind', function() {
+    return {
+      restrict: 'E',
+      link: function(scope, element, attrs) {
+        attrs.$observe("bids", function (bids) {
+          bids = JSON.parse(bids);
+          var bid = bids.filter(function(el){
+            return el.accepted;
+          })[0];
+          element.text("$" + bid.price.toFixed(2));
+        });
+      }
+    }
   });

@@ -35,9 +35,17 @@ angular.module('ribbid', ['ngMap', 'angularMoment', 'ngAnimate', 'ngRoute', 'rib
         templateUrl: 'partials/request',
         controller: RequestController
       })
+      .when('/request/:id/pay', {
+        templateUrl: 'partials/pay',
+        controller: RequestController
+      })
       .when('/me/requests_bids', {
         templateUrl: 'partials/requests_bids',
         controller: UserController
+      })
+      .when('/me/request/:id', {
+        templateUrl: 'partials/request_view',
+        controller: RequestController
       })
       .when('/me', {
         templateUrl: 'partials/user'

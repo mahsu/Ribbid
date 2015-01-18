@@ -4,6 +4,9 @@ function RequestsController($scope, $http) {
     navigator.geolocation.getCurrentPosition(function(position){
       $scope.gps = true;
       $http.get('/api/requests?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude).success(function(data, status, headers, config) {
+        data = data.filter(function(el) {
+          return el.obj.fulfillerId == null;
+        });
         console.log(data)
         $scope.requests = data;
       });
@@ -44,10 +47,42 @@ function geoCode(address, callback) {
 }
 
 function UserController($scope, $http) {
-
+  $http.get('/api/me/requests_bids').success(function(data, status, headers, config) {
+    console.log(data);
+    try {
+      $scope.unfulfilled_requests = data.requests.filter(function(el) {
+        return el.fulfillerId == null;
+      });
+    } catch(e) {}
+    try {
+      $scope.fulfilled_requests = data.requests.filter(function(el) {
+        return el.fulfillerId != null;
+      });
+    } catch(e) {}
+    try {
+      $scope.unaccepted_bids = data.bids.map(function(elem) {
+        elem.bid = elem.bids.filter(function(e) {
+          return !e.accepted
+        }).reduce(function(a, b) {
+          return a.price<b.price?a:b;
+        });
+        return elem;
+      });
+    } catch(e) {}
+    try {
+      $scope.accepted_bids = data.bids.map(function(elem) {
+        elem.bid = elem.bids.filter(function(e) {
+          return e.accepted
+        }).reduce(function(a, b) {
+          return a.price<b.price?a:b;
+        });
+        return elem;
+      });
+    } catch(e) {}
+  });
 }
 
-function RequestController($scope, $http, $routeParams) {
+function RequestController($scope, $http, $routeParams, $location) {
   $scope.making_bid = false;
   $scope.startBid = function() {
     setTimeout(function() {
@@ -66,15 +101,35 @@ function RequestController($scope, $http, $routeParams) {
         price: bid
       }).success(function() {
         $http.get('/api/request/' + $routeParams.id).success(function(data, status, headers, config) {
+          data.bids = data.bids.sort(function(x, y) {
+            return Date.parse(y.timestamp) - Date.parse(x.timestamp);
+          });
           $scope.request = data;
         });
       });
     }
   }
 
+  $scope.accepting = false;
+  $scope.startAccept = function(id) {
+    $('.list-item').removeClass('accepting');
+    $('#'+id).addClass('accepting');
+  }
+  $scope.cancelAccept = function() {
+    $('.list-item').removeClass('accepting');
+  }
+  $scope.makeAccept = function(id) {
+    $http.patch('/api/request/' + $routeParams.id + '/bid/' + id + '/accept').success(function() {
+      $location.path("/me/requests_bids");
+    });
+  }
+
   $scope.map;
   $http.get('/api/request/' + $routeParams.id).success(function(data, status, headers, config) {
     console.log(data)
+    data.bids = data.bids.sort(function(x, y) {
+      return Date.parse(y.timestamp) - Date.parse(x.timestamp);
+    });
     $scope.request = data;
 
     $scope.bounds = new google.maps.LatLngBounds();
@@ -114,9 +169,9 @@ function RequestController($scope, $http, $routeParams) {
   $scope.$on('mapInitialized', function(event, map) {
     $scope.map = map;
     mapSetup(map);
+    $scope.$on('$viewContentLoaded', function() {
+      mapSetup($scope.map);
+    });
   });
 
-  $scope.$on('$viewContentLoaded', function() {
-    mapSetup($scope.map);
-  });
 }
