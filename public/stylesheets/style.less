@@ -173,11 +173,25 @@ nav {
     }
     &.accepted {
       background-color: @light-green;
-      .name {
-        color: white;
-      }
-      .title {
-        color: white;
+      .item-wrap {
+        .name {
+          color: white;
+        }
+        .title {
+          color: white;
+        }
+        .bid {
+          color: white;
+          &::before {
+            content: " $";
+          }
+        }
+        .description {
+          color: #CCFFE2;
+        }
+        .stats li {
+          color: whitesmoke;
+        }
       }
     }
   }
@@ -205,7 +219,16 @@ nav {
         border-radius: 20px;
       }
     }
-    .name { color: @dark-green }
+    .name {
+      color: @dark-green;
+      .bid {
+        color: black;
+        font-weight: bold;
+        &::before {
+          content: " \2014  $"
+        }
+      }
+    }
     .title {
       font-weight: bold;
       &::after {
