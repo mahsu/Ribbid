@@ -23,8 +23,8 @@
         <div id="title">Ribbid</div>
         <a type="button" id = "facebook-login-button" href="/auth/login/facebook"><i class="fa fa-facebook"></i>Login</a>
         <div id="holder">
-          <a type="button" id = "hire-button" href="#hire" ><i class="fa fa-male"></i>Hire</a>
-          <a type="button" id = "work-button" href="#work" align="right"><span><i class="fa fa-briefcase"></span></i>Work</a>
+          <a type="button" class= "b" id = "hire-button" href="#hire" ><i class="fa fa-male"></i>Hire</a>
+          <a type="button" class= "b" id = "work-button" href="#work" align="right"><span><i class="fa fa-briefcase"></span></i>Work</a>
         </div>
         <div id = "title"><a id="hire" ><font color="white">Hire</font></a></div>
         <div id = "small-title">Get the help you need, at the price you want.</div>
@@ -74,11 +74,12 @@
   </div>
 </body>
 <script>
-$('a').click(function(e){
+$('.b').click(function(e){
   e.preventDefault();
   $('html, body').animate({
     scrollTop: $( $.attr(this, 'href') ).offset().top
   }, 500);
   return false;
 });
+
 </script>
