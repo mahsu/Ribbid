@@ -1,4 +1,4 @@
-function RequestsController($scope, $http) {
+function RequestsController($scope, $http, $location) {
   $scope.gps = false;
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position){
@@ -27,7 +27,7 @@ function RequestsController($scope, $http) {
         console.log($scope.request_form)
         $http.post('/api/requests', $scope.request_form)
         .success(function(data) {
-          //$location.path('/me/requests');
+          $location.path('/requests');
         });
       }
     });
