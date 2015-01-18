@@ -3,7 +3,7 @@ var express = require('express');
 var router = express.Router();
 
 var Request = require('../models/request');
-var _ = require(underscore);
+var _ = require('underscore');
 var RADIUS_OF_EARTH = 3959;
 
 router.post('/requests', function(req, res) {
@@ -12,11 +12,11 @@ router.post('/requests', function(req, res) {
         title: req.body.title,
         description: req.body.description,
         tags: req.body.tags,
-        startingPrice: req.body.price,
+        startingPrice: req.body.start_price,
         mustCompleteBy: new Date(req.body.completed_by),
         requesterId: req.user._id,
         loc: point,
-        address: req.address
+        address: req.body.address
     };
     console.log(request);
     Request.addRequest(request, function(err, result) {
