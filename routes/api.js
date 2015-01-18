@@ -12,7 +12,7 @@ router.post('/requests', function(req, res) {
         tags: req.body.tags,
         startingPrice: req.body.price,
         mustCompleteBy: new Date(req.body.completed_by),
-        requester: req.user._id,
+        requesterId: req.user._id,
         loc: [req.body.lon, req.body.lat],
         address: req.address
     };
@@ -85,18 +85,19 @@ router.get('/request/:id/reviews', function(req, res){
 });
 
 //accept a bid as the requester
-router.put('/request/:id/bid/accept', function(req, res){
-
-});
-
-//return data for another user
-router.get('/user/:id', function(req, res){
-
+router.put('/request/:request_id/bid/:bid_id/accept', function(req, res){
+    Request.acceptRequest(req.user, req.params.request_id, req.params.bid_id, function(err, request) {
+        if (err) {res.status(500).send(err);}
+        else {res.send(request)}
+    });
 });
 
 //decline request in which your bid was accepted as the fulfiller
-router.patch('/request/:request_id/decline', function(req, res){
-
+router.patch('/request/:id/decline', function(req, res){
+    Request.declineRequest(req.user, req.params.id, function(err, request){
+       if (err) {res.status(500).send(err);}
+        else {res.send(request)}
+    });
 });
 
 //pay and lock the request
@@ -105,6 +106,11 @@ router.patch('/request/pay', function(req, res){
 });
 
 /* aggregate data */
+
+//return data for another user
+router.get('/user/:id', function(req, res){
+
+});
 
 router.get('/me', function(req, res) {
    res.send(req.user);
