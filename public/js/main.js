@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('ribbid', ['ngRoute', 'ribbid.filters', 'ribbid.services', 'ribbid.directives'])
+angular.module('ribbid', ['ngAnimate', 'ngRoute', 'ribbid.filters', 'ribbid.services', 'ribbid.directives'])
   .factory('httpResponseInterceptor',['$q','$location',function($q,$location){
     return {
         response: function(response){
@@ -34,6 +34,7 @@ angular.module('ribbid', ['ngRoute', 'ribbid.filters', 'ribbid.services', 'ribbi
       .when('/request', {
             templateUrl: 'partials/request',
             controller: RequestsController
+      })
       })
       .when('/me/requests_bids', {
         templateUrl: 'partials/requests_bids',
