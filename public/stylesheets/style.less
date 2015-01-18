@@ -285,3 +285,26 @@ form {
     }
   }
 }
+
+.ng-hide-add, .ng-hide-remove, .ng-show-add, .ng-show-remove {
+    /* ensure visibility during the transition */
+    display: block !important; /* yes, important */
+}
+
+.cssFadeSlide {
+    transition: 0.3s ease all;
+    opacity: 1;
+}
+.cssFadeSlide.ng-hide {
+    opacity: 0;
+    height:0;
+    padding-top: 0px;
+    padding-bottom: 0px;
+}
+
+.help-block {
+  margin: 0;
+  padding: 5px;
+  background: none;
+}
+
