@@ -3,6 +3,7 @@ var express = require('express');
 var router = express.Router();
 
 var Request = require('../models/request');
+var User = require('../models/user');
 var _ = require('underscore');
 var RADIUS_OF_EARTH = 3959;
 
@@ -39,11 +40,15 @@ router.get('/requests', function(req, res) {
 
 router.get('/request/:id', function(req, res) {
     Request.findById(req.params.id, function(err, request) {
-        __injectUsers(request.bids,"userId", function(err, res){
-           request.bids = res;
+        __injectUser(request,"requesterId", function(err,result){
+            request = result;
+            __injectUsers(request.bids,"userId", function(err, result){
+                request.bids = result;
+
+                if (err) res.status(500).send(err);
+                else res.json(request);
+            })
         });
-        if (err) res.status(500).send(err);
-        else res.json(request);
     })
 });
 
@@ -143,6 +148,15 @@ function __getPublicUser(userId, callback) {
     });
 }
 
+//target is a single user
+function __injectUser(target, userIdParam, callback) {
+    var userid = target[userIdParam];
+    __getPublicUser(userid, function(err, userfields){
+        target._doc.user = {};
+        target._doc.user = userfields;
+        callback(null, target);
+    })
+}
 //target is an array
 //userIdParam is the param in which userid for searching can be found
 function __injectUsers(target, userIdParam, callback){
