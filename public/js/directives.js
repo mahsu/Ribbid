@@ -48,4 +48,25 @@ angular.module('ribbid.directives', [])
         });
       }
     }
+  })
+  .directive('initialprice', function() {
+    return {
+      restrict: 'E',
+      link: function(scope, element, attrs) {
+        attrs.$observe("obj", function (obj) {
+          obj = JSON.parse(obj);
+          if (obj.bids.length==0) {
+            element.text("$" + obj.startingPrice.toFixed(2));
+          } else {
+            var min = obj.bids[0].price;
+            for(var i = 1; i < obj.bids.length; i++) {
+              if (obj.bids[i].price < min) {
+                min = obj.bids[i].price;
+              }
+            }
+            element.text("$" + min.toFixed(2));
+          }
+        });
+      }
+    }
   });

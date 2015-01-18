@@ -19,7 +19,7 @@
           <img src={{request.obj.user.profilePic}} />
         </div>
         <ul class="stats">
-          <li class="bid">{{request.obj.startingPrice | currency:"$"}}</li>
+          <li class="bid"><initialprice obj ={{request.obj}}></initialprice></li>
           <li class="time"><fromnow date={{request.obj.mustCompleteBy}}></fromnow></li>
           <li class="dist">{{request.dis | number:1}}</li>
         </ul>
