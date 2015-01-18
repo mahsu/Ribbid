@@ -2,8 +2,6 @@
 *.min.css
 .idea
 config.json
-*.css
-*.css.min
 
 # Logs
 logs
@@ -33,4 +31,3 @@ node_modules
 
 # Users Environment Variables
 .lock-wscript
-config.template.json
