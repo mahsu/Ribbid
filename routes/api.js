@@ -124,39 +124,62 @@ router.get('/user/:id', function(req, res){
 });
 
 router.get('/user/:user_id/reviews/rater', function(req,res){
-   var userid = req.params.user_id;
+   var userid = req.params.user_id, obj = {};
     Request.find({"reviews.byId": userid}, function(err, reviews){
-        if (err) res.status(500).send(err);
-        else res.send(reviews);
+        __getPublicUser(req.user._id, function(err, user) {
+            if (err) res.status(500).send(err);
+            obj.reviews = reviews;
+            obj.user = user;
+            res.send(obj);
+        })
     })
 });
 
 router.get('/user/:user_id/reviews/rated', function(req,res){
-    var userid = req.params.user_id;
+    var userid = req.params.user_id, obj = {};
     Request.find({"reviews.forId": userid}, function(err, reviews){
-        if (err) res.status(500).send(err);
-        else res.send(reviews);
+        __getPublicUser(req.user._id, function(err, user){
+            if (err) res.status(500).send(err);
+            obj.reviews = reviews;
+            obj.user = user;
+            res.send(obj);
+        })
     })
 });
 
 router.get('/me/reviews', function(req, res){
+    var obj = {};
     Request.find({$or: [{"reviews.byId": userid}, {"reviews.forId": userid}]}, function(err, reviews){
-        if (err) res.status(500).send(err);
-        else res.send(reviews);
+        __getPublicUser(req.user._id, function(err, me){
+            if (err) res.status(500).send(err);
+            obj.reviews = reviews;
+            obj.me = me;
+            res.send(obj);
     })
 });
 
 router.get('/me/reviews/rater', function(req,res){
+    var obj = {};
     Request.find({"reviews.byId": req.user._id}, function(err, reviews){
-        if (err) res.status(500).send(err);
-        else res.send(reviews);
+        __getPublicUser(req.user._id, function(err, me){
+            if (err) res.status(500).send(err);
+            obj.reviews = reviews;
+            obj.me = me;
+            res.send(obj);
+        })
+    })
     })
 });
 
 router.get('/me/reviews/rated', function(req,res){
+    var obj = {};
     Request.find({"reviews.forId": req.user._id}, function(err, reviews){
-        if (err) res.status(500).send(err);
-        else res.send(reviews);
+        __getPublicUser(req.user._id, function(err, me) {
+            if (err) res.status(500).send(err);
+            obj.reviews = reviews;
+            obj.me = me;
+            res.send(reviews);
+        })
     })
 });
 
