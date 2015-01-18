@@ -26,18 +26,20 @@ var requestSchema = new mongoose.Schema({
     requesterId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     fulfillerId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     address: String,
-    loc: {type: [Number], index: '2dsphere'},
+    loc: { type: { type: String }, coordinates: [Number]},
     bids: [bidSchema],
     acceptedBidId: {type: mongoose.Schema.Types.ObjectId},
     paid: Boolean,
     reviews: [reviewSchema],
     timestamp: {type: Date, default: Date.now}
 });
+requestSchema.index({ loc: '2dsphere' });
 
 //location: [lon, lat]
 requestSchema.statics.addRequest = function(request, callback){
     var newRequest = new this(request);
     newRequest.save(function (err){
+        console.log(err);
         callback(err, newRequest);
     });
 
@@ -54,27 +56,18 @@ requestSchema.statics.deleteRequest = function(id, callback){
     });
 };
 
-//maxdist in meters
-requestSchema.statics.findRequests = function(maxdist,location, callback) {
+//maxdist in meters, convert to miles
+//convert to miles
+requestSchema.statics.findRequests = function(maxdist, location, callback) {
     var that = this;
-    var findParams = {
-        loc: {
-            $near: {
-                $geometry: {
-                    type: "Point",
-                    coordinates: location
-                },
-                $maxDistance: maxdist
-            }
-        }
-    };
-    that.find(findParams, function(err, results) {
-        if (err)
-            callback(err);
-        else {
-            callback(null, results);
-        }
-    })
+    var point = {type: "Point", coordinates: location};
+    console.log(point);
+    that.geoNear(point, { maxDistance: maxdist, spherical: true, distanceMultiplier: 3959}, function(err, results, stats){
+        console.log(err);
+        if (err) {return callback(err);}
+        console.log(results);
+        console.log(stats);
+    });
 };
 
 //todo check date
