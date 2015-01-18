@@ -123,6 +123,42 @@ router.get('/user/:id', function(req, res){
     })
 });
 
+router.get('/user/:user_id/reviews/rater', function(req,res){
+   var userid = req.params.user_id;
+    Request.find({"reviews.byId": userid}, function(err, reviews){
+        if (err) res.status(500).send(err);
+        else res.send(reviews);
+    })
+});
+
+router.get('/user/:user_id/reviews/rated', function(req,res){
+    var userid = req.params.user_id;
+    Request.find({"reviews.forId": userid}, function(err, reviews){
+        if (err) res.status(500).send(err);
+        else res.send(reviews);
+    })
+});
+
+router.get('/me/reviews', function(req, res){
+    Request.find({$or: [{"reviews.byId": userid}, {"reviews.forId": userid}]}, function(err, reviews){
+        if (err) res.status(500).send(err);
+        else res.send(reviews);
+    })
+});
+
+router.get('/me/reviews/rater', function(req,res){
+    Request.find({"reviews.byId": req.user._id}, function(err, reviews){
+        if (err) res.status(500).send(err);
+        else res.send(reviews);
+    })
+});
+
+router.get('/me/reviews/rated', function(req,res){
+    Request.find({"reviews.forId": req.user._id}, function(err, reviews){
+        if (err) res.status(500).send(err);
+        else res.send(reviews);
+    })
+});
 
 router.get('/me', function(req, res) {
     __getPublicUser(req.user._id, function(err, user){

@@ -15,7 +15,7 @@ var reviewSchema = new mongoose.Schema({
     rating: Number,
     comment: String,
     byId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', unique: true},
-    //forId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    forId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', unique: true},
     timestamp: {type: Date, default: Date.now}
 });
 
@@ -148,6 +148,7 @@ requestSchema.statics.addReview = function(requestId, userId, newReview, callbac
         if (userId != request.fulfillerId && userId != request.requesterId) {return callback("Access denied.")}
 
         var otherUser = (userId == request.fulfillerId) ? request.fulfillerId : request.requesterId;
+        newReview.for = otherUser;
         request.reviews.push(newReview);
         request.save(function(err) {
             if (err) return callback(err);
