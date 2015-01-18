@@ -171,30 +171,35 @@ function __injectUser(target, userIdParam, callback) {
 //userIdParam is the param in which userid for searching can be found
 function __injectUsers(target, userIdParam, callback){
     var userList = [];
-    target.forEach(function(val){
+    target.forEach(function(val, ind){
+        console.log(val);
         var userid = val[userIdParam];
         __getPublicUser(userid, function(err, res){
+            if (err) console.log(err);
             var userObj = {};
             userObj[userid] = res;
             userList.push(userObj);
+            if (ind == target.length-1) {
+                //console.log(userList);
+                target = _.map(target, function(val){
+                    var userid = val[userIdParam];
+                    //console.log(userList);
+                    for (var i=0; i<userList.length; i++) {
+                        if (Object.keys(userList[i])[0] == userid) {
+                            val._doc.user = {};
+                            val._doc.user = userList[i][userid];
+                            //console.log(val);
+                            //console.log(users[i][userId]);
+                            break;
+                        }
+                    }
+                    return val;
+                });
+                callback(null, target)
+            }
         });
     });
-    target = _.map(target, function(val){
-        var userid = val[userIdParam];
-        //console.log(userId);
-        for (var i=0; i<userList.length; i++) {
-            if (Object.keys(users[i])[0] == userid) {
-                val._doc.user = {};
-                val._doc.user = users[i][userid];
-                //console.log(val);
-                //console.log(users[i][userId]);
-                break;
-            }
-        }
-        return val;
-    });
-    //console.log(results);
-    callback(null, target)
+
 }
 
 module.exports = router;

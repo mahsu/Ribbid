@@ -205,7 +205,8 @@ requestSchema.statics.declineRequest = function(userId, requestId, callback){
 //todo callback
 //check if a request is locked for changes (exclude reviews)
 function __isLocked(review) {
-    return review.paid;
+    return false;
+    //return review.paid;
 }
 
 
