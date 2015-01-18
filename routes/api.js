@@ -28,7 +28,7 @@ router.post('/requests', function(req, res) {
 
 router.get('/requests', function(req, res) {
     var loc, rad;
-    rad = (15 || req.query.rad)/(3959);
+    rad = (15 || req.query.rad)/(RADIUS_OF_EARTH);
 
     loc = [parseFloat(req.query.lon), parseFloat(req.query.lat)];
     Request.findRequests(rad, loc, function(err, requests) {
@@ -53,12 +53,13 @@ router.get('/request/:id', function(req, res) {
 });
 
 router.post('/request/:id/bids', function(req, res) {
-    Request.addBid(req.params.id,req.user._id, req.query.price, function(err, res){
+    Request.addBid(req.params.id,req.user._id, req.body.price, function(err, request){
         if (err) res.status(500).send(err);
         else res.json(request);
     });
 });
 
+//deprecated
 router.get('/request/:id/bids', function(req, res){
     Request.findById(req.params.id, function(err, request) {
         if (err) res.status(500).send(err);
@@ -116,12 +117,18 @@ router.patch('/request/pay', function(req, res){
 
 //return data for another user
 router.get('/user/:id', function(req, res){
-
+    __getPublicUser(req.params.id, function(err, user){
+        if (err) res.status(500).send(err);
+        else res.send(user);
+    })
 });
 
-//todo public params
+
 router.get('/me', function(req, res) {
-   res.send(req.user);
+    __getPublicUser(req.user._id, function(err, user){
+        if (err) res.status(500).send(err);
+        else res.send(user);
+    });
 });
 
 //return my recent requests and bids
@@ -129,10 +136,13 @@ router.get('/me/requests_bids', function(req, res) {
     var recent = {};
     Request.find({requesterId: req.user._id}, function(err, requests){
         Request.find({'bids.userId': req.user._id}, function(err, bids){
-            recent.requests = requests;
-            recent.bids = bids;
-            res.send(recent);
-        })
+            __getPublicUser(req.user._id, function(err, me){
+                recent.requests = requests;
+                recent.bids = bids;
+                recent.me = me;
+                res.send(recent);
+            });
+        });
     });
 });
 
