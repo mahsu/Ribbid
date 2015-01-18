@@ -3,8 +3,7 @@ function RequestsController($scope, $http) {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position){
       $scope.gps = true;
-      $http.get('/api/requests?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude)
-      .success(function(data, status, headers, config) {
+      $http.get('/api/requests?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude).success(function(data, status, headers, config) {
         console.log(data)
         $scope.requests = data;
       });
@@ -48,12 +47,42 @@ function UserController($scope, $http) {
 
 }
 
-function RequestController($scope, $http) {
-  $scope.bounds = new google.maps.LatLngBounds();
-  $scope.drop_off = new google.maps.LatLng(39.95, -75.16);
-  $scope.bounds.extend($scope.drop_off);
+function RequestController($scope, $http, $routeParams) {
+  $scope.making_bid = false;
+  $scope.startBid = function() {
+    setTimeout(function() {
+      $('#bidAmnt').focus();
+    }, 100);
+    $scope.making_bid = true;
+  }
+  $scope.cancelBid = function() {
+    $scope.making_bid = false;
+  }
 
-  $scope.$on('mapInitialized', function(event, map) {
+  $scope.makeBid = function() {
+    if ($scope.bid && $scope.bid.match(/^\$?[0-9]*\.?[0-9]*$/)) {
+      var bid = $scope.bid.replace(/[^0-9.]+/g, "");
+      $http.post('/request/' + $routeParams.id + '/bids', {
+        price: bid
+      }).success(function() {
+        $http.get('/api/request/' + $routeParams.id).success(function(data, status, headers, config) {
+          $scope.request = data;
+        });
+      });
+    }
+  }
+
+  $scope.map;
+  $http.get('/api/request/' + $routeParams.id).success(function(data, status, headers, config) {
+    console.log(data)
+    $scope.request = data;
+
+    $scope.bounds = new google.maps.LatLngBounds();
+    $scope.drop_off = new google.maps.LatLng(data.loc.coordinates[1], data.loc.coordinates[0]);
+    $scope.bounds.extend($scope.drop_off);
+  });
+
+  mapSetup = function(map) {
     map.setCenter($scope.drop_off);
 
     marker = new google.maps.Marker({
@@ -76,5 +105,14 @@ function RequestController($scope, $http) {
         }
       });
     }
+  }
+
+  $scope.$on('mapInitialized', function(event, map) {
+    $scope.map = map;
+    mapSetup(map);
+  });
+
+  $scope.$on('$viewContentLoaded', function() {
+    mapSetup($scope.map);
   });
 }

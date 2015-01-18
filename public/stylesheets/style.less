@@ -271,7 +271,41 @@ nav {
     }
   }
   .name, .title {
-    font-size: 24px;
+    font-size: 20px;
+  }
+}
+
+.list-item {
+  &.making_bid {
+    form {
+      padding: 0;
+      background-color: transparent;
+    }
+    padding: 14px;
+    input {
+      border: none;
+      text-align: center;
+      background-color: transparent;
+      color: white;
+      &:focus {
+        outline: none;
+      }
+      &::-webkit-input-placeholder {
+         color: white;
+      }
+
+      &:-moz-placeholder {
+         color: white;
+      }
+
+      &::-moz-placeholder {
+         color: white;
+      }
+
+      &:-ms-input-placeholder {
+         color: white;
+      }
+    }
   }
 }
 

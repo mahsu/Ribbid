@@ -31,7 +31,7 @@ angular.module('ribbid', ['ngMap', 'angularMoment', 'ngAnimate', 'ngRoute', 'rib
         templateUrl: 'partials/create',
         controller: RequestsController
       })
-      .when('/request', {
+      .when('/request/:id', {
         templateUrl: 'partials/request',
         controller: RequestController
       })
