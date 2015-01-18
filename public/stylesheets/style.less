@@ -1,9 +1,10 @@
 @dark-green: #27ae60;
-@light-green: #2ecc71;
+@light-green: #43D782;//#2ecc71;
 
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   background-color: white;
+  line-height: 130%;
 }
 
 a {
@@ -78,8 +79,41 @@ nav {
     text-align: center;
     font-size: 18px;
     line-height: 50px;
-    //position: absolute;
-    //width: 100%;
+    .tab-nav {
+      li {
+        display: inline-block;
+        a {
+          border-top: 1px solid white;
+          border-bottom: 1px solid white;
+          color: white;
+          font-size: 16px;
+          padding: 3px 6px;
+          &:hover, &:focus {
+            text-decoration: none;
+          }
+        }
+        &:first-of-type {
+          a {
+            border-left: 1px solid white;
+            border-top-left-radius: 10px;
+            border-bottom-left-radius: 10px;
+          }
+        }
+        &:last-of-type {
+          a {
+            border-right: 1px solid white;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+          }
+        }
+        &.active {
+          a {
+            background-color: white;
+            color: @dark-green;
+          }
+        }
+      }
+    }
   }
   #left-btns {
     left: 0px;
@@ -128,9 +162,23 @@ nav {
         height: 1px;
         content: ""
       }
+      &.accepted {
+        &::before {
+          background-color: white;
+        }
+      }
     }
     &:active {
       background-color: white;
+    }
+    &.accepted {
+      background-color: @light-green;
+      .name {
+        color: white;
+      }
+      .title {
+        color: white;
+      }
     }
   }
   .text-item {
@@ -142,7 +190,7 @@ nav {
     padding: 15px 20px;
   }
 
-  .request {
+  .item-wrap {
     color: #222;
     &:hover {
       text-decoration: none;
@@ -204,4 +252,13 @@ form {
 
 .center-block {
   text-align: center;
+}
+
+#content-wrap {
+  .tab {
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
 }

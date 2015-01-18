@@ -1,7 +1,27 @@
 'use strict';
 
 angular.module('ribbid', ['ngRoute', 'ribbid.filters', 'ribbid.services', 'ribbid.directives'])
-  .config(['$routeProvider', '$locationProvider', function($routeProvider, $locationProvider) {
+  .factory('httpResponseInterceptor',['$q','$location',function($q,$location){
+    return {
+        response: function(response){
+            console.log(response.status, response.body)
+            if (response.status === 401) {
+                console.log("Response 401");
+            }
+            return response || $q.when(response);
+        },
+        responseError: function(rejection) {
+            console.log(rejection.status, response.body)
+            if (rejection.status === 401) {
+                console.log("Response Error 401",rejection);
+                //$location.path('/login').search('returnTo', $location.path());
+            }
+            return $q.reject(rejection);
+        }
+    }
+  }])
+  .config(['$httpProvider', '$routeProvider', '$locationProvider', function($httpProvider, $routeProvider, $locationProvider) {
+    $httpProvider.interceptors.push('httpResponseInterceptor');
     $routeProvider
       .when('/requests', {
         templateUrl: 'partials/requests',
@@ -11,11 +31,19 @@ angular.module('ribbid', ['ngRoute', 'ribbid.filters', 'ribbid.services', 'ribbi
         templateUrl: 'partials/create',
         controller: RequestsController
       })
+      .when('/me/requests_bids', {
+        templateUrl: 'partials/requests_bids',
+        controller: UserController
+      })
+      .when('/me', {
+        templateUrl: 'partials/user'
+        //controller: UsersController
+      })
       .when('/login', {
         templateUrl: 'partials/login'
       })
       .otherwise({
         redirectTo: '/requests'
       });
-      $locationProvider.html5Mode(true);
+    $locationProvider.html5Mode(true);
   }]);
