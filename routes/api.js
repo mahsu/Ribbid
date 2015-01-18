@@ -123,6 +123,65 @@ router.get('/user/:id', function(req, res){
     })
 });
 
+router.get('/user/:user_id/reviews/rater', function(req,res){
+   var userid = req.params.user_id, obj = {};
+    Request.find({"reviews.byId": userid}, function(err, reviews){
+        __getPublicUser(req.user._id, function(err, user) {
+            if (err) res.status(500).send(err);
+            obj.reviews = reviews;
+            obj.user = user;
+            res.send(obj);
+        })
+    })
+});
+
+router.get('/user/:user_id/reviews/rated', function(req,res){
+    var userid = req.params.user_id, obj = {};
+    Request.find({"reviews.forId": userid}, function(err, reviews){
+        __getPublicUser(req.user._id, function(err, user){
+            if (err) res.status(500).send(err);
+            obj.reviews = reviews;
+            obj.user = user;
+            res.send(obj);
+        })
+    })
+});
+
+router.get('/me/reviews', function(req, res){
+    var obj = {};
+    Request.find({$or: [{"reviews.byId": userid}, {"reviews.forId": userid}]}, function(err, reviews){
+        __getPublicUser(req.user._id, function(err, me){
+            if (err) res.status(500).send(err);
+            obj.reviews = reviews;
+            obj.me = me;
+            res.send(obj);
+    })
+});
+
+router.get('/me/reviews/rater', function(req,res){
+    var obj = {};
+    Request.find({"reviews.byId": req.user._id}, function(err, reviews){
+        __getPublicUser(req.user._id, function(err, me){
+            if (err) res.status(500).send(err);
+            obj.reviews = reviews;
+            obj.me = me;
+            res.send(obj);
+        })
+    })
+    })
+});
+
+router.get('/me/reviews/rated', function(req,res){
+    var obj = {};
+    Request.find({"reviews.forId": req.user._id}, function(err, reviews){
+        __getPublicUser(req.user._id, function(err, me) {
+            if (err) res.status(500).send(err);
+            obj.reviews = reviews;
+            obj.me = me;
+            res.send(reviews);
+        })
+    })
+});
 
 router.get('/me', function(req, res) {
     __getPublicUser(req.user._id, function(err, user){
@@ -135,13 +194,22 @@ router.get('/me', function(req, res) {
 router.get('/me/requests_bids', function(req, res) {
     var recent = {};
     Request.find({requesterId: req.user._id}, function(err, requests){
-        Request.find({'bids.userId': req.user._id}, function(err, bids){
-            __getPublicUser(req.user._id, function(err, me){
-                recent.requests = requests;
-                recent.bids = bids;
-                recent.me = me;
-                res.send(recent);
+        requests.forEach(function(request, ind){
+            __injectUsers(request.bids, "userId", function(err, bids) {
+                requests[ind].bids = bids;
+
+                if (ind == requests.length - 1) {
+                    Request.find({'bids.userId': req.user._id}, function (err, bids) {
+                        __getPublicUser(req.user._id, function (err, me) {
+                            recent.requests = requests;
+                            recent.bids = bids;
+                            recent.me = me;
+                            res.send(recent);
+                        });
+                    });
+                }
             });
+
         });
     });
 });
@@ -171,30 +239,35 @@ function __injectUser(target, userIdParam, callback) {
 //userIdParam is the param in which userid for searching can be found
 function __injectUsers(target, userIdParam, callback){
     var userList = [];
-    target.forEach(function(val){
+    target.forEach(function(val, ind){
+        console.log(val);
         var userid = val[userIdParam];
         __getPublicUser(userid, function(err, res){
+            if (err) console.log(err);
             var userObj = {};
             userObj[userid] = res;
             userList.push(userObj);
+            if (ind == target.length-1) {
+                //console.log(userList);
+                target = _.map(target, function(val){
+                    var userid = val[userIdParam];
+                    //console.log(userList);
+                    for (var i=0; i<userList.length; i++) {
+                        if (Object.keys(userList[i])[0] == userid) {
+                            val._doc.user = {};
+                            val._doc.user = userList[i][userid];
+                            //console.log(val);
+                            //console.log(users[i][userId]);
+                            break;
+                        }
+                    }
+                    return val;
+                });
+                callback(null, target)
+            }
         });
     });
-    target = _.map(target, function(val){
-        var userid = val[userIdParam];
-        //console.log(userId);
-        for (var i=0; i<userList.length; i++) {
-            if (Object.keys(users[i])[0] == userid) {
-                val._doc.user = {};
-                val._doc.user = users[i][userid];
-                //console.log(val);
-                //console.log(users[i][userId]);
-                break;
-            }
-        }
-        return val;
-    });
-    //console.log(results);
-    callback(null, target)
+
 }
 
 module.exports = router;
