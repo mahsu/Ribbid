@@ -42,12 +42,12 @@ router.get('/request/:id', function(req, res) {
     Request.findById(req.params.id, function(err, request) {
         __injectUser(request,"requesterId", function(err,result){
             request = result;
-            __injectUsers(request.bids,"userId", function(err, result){
-                request.bids = result;
+            //__injectUsers(request.bids,"userId", function(err, result){
+            //    request.bids = result;
 
                 if (err) res.status(500).send(err);
                 else res.json(request);
-            })
+            //})
         });
     })
 });
