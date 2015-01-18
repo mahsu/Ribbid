@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('ribbid', ['ngAnimate', 'ngRoute', 'ribbid.filters', 'ribbid.services', 'ribbid.directives'])
+angular.module('ribbid', ['ngMap', 'angularMoment', 'ngAnimate', 'ngRoute', 'ribbid.filters', 'ribbid.services', 'ribbid.directives'])
   .factory('httpResponseInterceptor',['$q','$location',function($q,$location){
     return {
         response: function(response){
@@ -13,8 +13,8 @@ angular.module('ribbid', ['ngAnimate', 'ngRoute', 'ribbid.filters', 'ribbid.serv
         responseError: function(rejection) {
             console.log(rejection.status, rejection.body)
             if (rejection.status === 401) {
-                console.log("Response Error 401",rejection);
-                //$location.path('/login').search('returnTo', $location.path());
+              window.location = "/";
+                //$location.path('/').search('returnTo', $location.path());
             }
             return $q.reject(rejection);
         }
@@ -32,8 +32,8 @@ angular.module('ribbid', ['ngAnimate', 'ngRoute', 'ribbid.filters', 'ribbid.serv
         controller: RequestsController
       })
       .when('/request', {
-            templateUrl: 'partials/request',
-            controller: RequestsController
+        templateUrl: 'partials/request',
+        controller: RequestController
       })
       .when('/me/requests_bids', {
         templateUrl: 'partials/requests_bids',

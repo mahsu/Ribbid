@@ -5,7 +5,8 @@ function RequestsController($scope, $http) {
       $scope.gps = true;
       $http.get('/api/requests?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude)
       .success(function(data, status, headers, config) {
-        $scope.requests = data.requests;
+        console.log(data)
+        $scope.requests = data;
       });
     });
   }
@@ -45,4 +46,35 @@ function geoCode(address, callback) {
 
 function UserController($scope, $http) {
 
+}
+
+function RequestController($scope, $http) {
+  $scope.bounds = new google.maps.LatLngBounds();
+  $scope.drop_off = new google.maps.LatLng(39.95, -75.16);
+  $scope.bounds.extend($scope.drop_off);
+
+  $scope.$on('mapInitialized', function(event, map) {
+    map.setCenter($scope.drop_off);
+
+    marker = new google.maps.Marker({
+      position: $scope.drop_off,
+      map: map
+    });
+
+    if(navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        $scope.pos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+        $scope.bounds.extend($scope.pos);
+
+        if ($scope.pos) {
+          me = new google.maps.Marker({
+            position: $scope.pos,
+            map: map
+          });
+          map.fitBounds($scope.bounds);
+          map.panToBounds($scope.bounds);
+        }
+      });
+    }
+  });
 }
