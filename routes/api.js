@@ -65,8 +65,11 @@ router.get('/request/:id/bids', function(req, res){
 //todo check uniqueness constraints
 //todo duplicate req.user._id passing
 router.post('/request/:id/reviews', function(req, res) {
+    var rating = parseInt(eq.body.rating);
+    if (rating > 5) rating = 5;
+    if (rating < 1) rating = 1;
     var review = {
-        rating: req.body.rating,
+        rating: rating,
         comment: req.body.comment,
         by: req.user._id
     };
@@ -81,7 +84,7 @@ router.post('/request/:id/reviews', function(req, res) {
 
 
 //accept a bid as the requester
-router.put('/request/:request_id/bid/:bid_id/accept', function(req, res){
+router.patch('/request/:request_id/bid/:bid_id/accept', function(req, res){
     Request.acceptRequest(req.user, req.params.request_id, req.params.bid_id, function(err, request) {
         if (err) {res.status(500).send(err);}
         else {res.send(request)}
@@ -116,7 +119,14 @@ router.get('/me', function(req, res) {
 
 //return my recent requests and bids
 router.get('/me/requests_bids', function(req, res) {
-
+    var recent = {};
+    Request.find({requesterId: req.user._id}, function(err, requests){
+        Request.find({'bids.userId': req.user._id}, function(err, bids){
+            recent.requests = requests;
+            recent.bids = bids;
+            res.send(recent);
+        })
+    });
 });
 
 

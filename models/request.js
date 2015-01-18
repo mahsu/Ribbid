@@ -1,19 +1,21 @@
 "use strict";
 var mongoose = require('mongoose');
 var User = require('./user');
+var _ = require("underscore");
+var async = require("async");
 
 var bidSchema = new mongoose.Schema({
     userId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     price: Number,
-    accepted: Boolean,
+    accepted: {type: Boolean, default: false},
     timestamp: {type: Date, default: Date.now}
 });
 
 var reviewSchema = new mongoose.Schema({
     rating: Number,
     comment: String,
-    byId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    forId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    byId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', unique: true},
+    //forId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
     timestamp: {type: Date, default: Date.now}
 });
 
@@ -24,12 +26,12 @@ var requestSchema = new mongoose.Schema({
     mustCompleteBy: Date,
     startingPrice: Number,
     requesterId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
-    fulfillerId: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+    fulfillerId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null},
     address: String,
     loc: { type: { type: String }, coordinates: [Number]},
     bids: [bidSchema],
     acceptedBidId: {type: mongoose.Schema.Types.ObjectId},
-    paid: Boolean,
+    paid: {type: Boolean, default: false},
     reviews: [reviewSchema],
     timestamp: {type: Date, default: Date.now}
 });
@@ -67,7 +69,42 @@ requestSchema.statics.findRequests = function(maxdist, location, callback) {
         if (err) {return callback(err);}
         console.log(results);
         console.log(stats);
-        callback(null, results);
+        var userIds = []; //retrieve userids
+        results.forEach(function(val){
+            userIds.push(val.obj.requesterId)
+        });
+        userIds = _.uniq(userIds);
+        //console.log(userIds);
+        User.find({_id: {$in: userIds}}, function(err, users){
+            var permit = ["displayName", "profilePic", "rating"];
+            users = _.map(users, function(user){
+                var fields = {}, obj = {};
+                for (var i=0; i<permit.length; i++) {
+                    fields[permit[i]] = user[permit[i]]
+                }
+                    var userid = user._id;
+                obj[userid]= fields;
+                return obj;
+            });
+            //console.log(users);
+            results = _.map(results, function(val){
+                var userId = val.obj.requesterId;
+                //console.log(userId);
+                for (var i=0; i<users.length; i++) {
+                    if (Object.keys(users[i])[0] == userId) {
+                        val.obj._doc.user = {};
+                        val.obj._doc.user = users[i][userId];
+                        //console.log(val);
+                        //console.log(users[i][userId]);
+                        break;
+                    }
+                }
+                return val;
+            });
+            //console.log(results);
+            callback(err, results)
+        });
+
     });
 };
 
@@ -100,11 +137,26 @@ requestSchema.statics.deleteBid = function(requestId, bidId, callback){
 //todo validate review fields, must be paid
 requestSchema.statics.addReview = function(requestId, userId, newReview, callback) {
     var that = this;
+    var rating = newReview.rating;
     that.findById(requestId, function(err, request){
         if (err) return callback(err);
+        //deny if not paid
+        if (request.paid == false) {callback("Not paid.")}
+        //deny if request incomplete
+        if (request.fulfillerId == null) {callback("Incomplete request.")}
+        //deny if not involved in request
+        if (userId != request.fulfillerId && userId != request.requesterId) {callback("Access denied.")}
+
+        var otherUser = (userId == request.fulfillerId) ? request.fulfillerId : request.requesterId;
         request.reviews.push(newReview);
         request.save(function(err) {
-            callback(err);
+            if (err) return callback(err);
+            User.findbyId(otherUser, function(err, user){
+                user.rating.push(rating);
+                user.save(function(err){
+                    callback(err);
+                })
+            })
         })
     })
 };
@@ -149,9 +201,23 @@ requestSchema.statics.declineRequest = function(userId, requestId, callback){
     })
 };
 
+//todo callback
 //check if a request is locked for changes (exclude reviews)
 function __isLocked(review) {
     return review.paid;
+}
+
+function __getPublicUser(userId, callback) {
+
+    User.findById(userId, function(err, user){
+        console.log(user);
+        if (err) {return callback(err)}
+        var sanitizedUser={};
+        permit.forEach(function(val){
+            sanitizedUser[val] = user[val];
+        });
+        return callback(null, sanitizedUser);
+    });
 }
 
 module.exports = mongoose.model('Request', requestSchema);
