@@ -1,11 +1,11 @@
-function RequestsController($scope, $http) {
+function RequestsController($scope, $http, $location) {
   $scope.gps = false;
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(function(position){
       $scope.gps = true;
       $http.get('/api/requests?lat=' + position.coords.latitude + '&lon=' + position.coords.longitude).success(function(data, status, headers, config) {
         data = data.filter(function(el) {
-          return el.obj.fulfillerId == null;
+          return !el.obj.fulfillerId;
         });
         console.log(data)
         $scope.requests = data;
@@ -27,7 +27,7 @@ function RequestsController($scope, $http) {
         console.log($scope.request_form)
         $http.post('/api/requests', $scope.request_form)
         .success(function(data) {
-          //$location.path('/me/requests');
+          $location.path('/requests');
         });
       }
     });
@@ -123,7 +123,7 @@ function RequestController($scope, $http, $routeParams, $location) {
       $location.path("/me/requests_bids");
     });
   }
-
+  $scope.bounds = new google.maps.LatLngBounds();
   $scope.map;
   $http.get('/api/request/' + $routeParams.id).success(function(data, status, headers, config) {
     console.log(data)
@@ -131,8 +131,6 @@ function RequestController($scope, $http, $routeParams, $location) {
       return Date.parse(y.timestamp) - Date.parse(x.timestamp);
     });
     $scope.request = data;
-
-    $scope.bounds = new google.maps.LatLngBounds();
     $scope.drop_off = new google.maps.LatLng(data.loc.coordinates[1], data.loc.coordinates[0]);
     $scope.bounds.extend($scope.drop_off);
   });
@@ -169,9 +167,11 @@ function RequestController($scope, $http, $routeParams, $location) {
   $scope.$on('mapInitialized', function(event, map) {
     $scope.map = map;
     mapSetup(map);
-    $scope.$on('$viewContentLoaded', function() {
+  });
+  $scope.$on('$viewContentLoaded', function() {
+    try {
       mapSetup($scope.map);
-    });
+    } catch(e) {}
   });
 
 }

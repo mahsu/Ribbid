@@ -31,10 +31,10 @@
     <li class="list-item" ng-repeat="bid in request.bids">
       <div class="item-wrap">
         <div class="picture">
-          <img src="https://scontent-a-lga.xx.fbcdn.net/hphotos-xpa1/v/t1.0-9/10922822_396217957207564_6547384044584887570_n.jpg?oh=5bb3bf03ae730fb0266e298716eef2a7&oe=55671980" />
+          <img src={{bid.user.profilePic}} />
         </div>
         <div class="float-group">
-          <div class="name">Austin Eng</div>
+          <div class="name">{{bid.user.displayName}}</div>
           <div class="bid">{{bid.price | currency:"$"}}<span class="timestamp">{{bid.timestamp | date:'mediumDate'}} at {{bid.timestamp | date:'shortTime'}}</span></div>
         </div>
       </div>
