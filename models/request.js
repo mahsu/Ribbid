@@ -29,6 +29,7 @@ var requestSchema = new mongoose.Schema({
     fulfillerId: {type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null},
     address: String,
     loc: { type: { type: String }, coordinates: [Number]},
+    _distance: Number, //for use in geoNear
     bids: [bidSchema],
     acceptedBidId: {type: mongoose.Schema.Types.ObjectId},
     paid: {type: Boolean, default: false},
@@ -65,46 +66,22 @@ requestSchema.statics.findRequests = function(maxdist, location, callback) {
     var point = {type: "Point", coordinates: location};
     console.log(point);
     that.geoNear(point, { maxDistance: maxdist, spherical: true, distanceMultiplier: 3959}, function(err, results, stats){
-            //console.log(err);
-            if (err) {return callback(err);}
-            console.log(results);
-            console.log(stats);
-            var userIds = []; //retrieve userids
-            results.forEach(function(val){
-                userIds.push(val.obj.requesterId)
-            });
-            userIds = _.uniq(userIds);
-        //console.log(userIds);
-        User.find({_id: {$in: userIds}}, function(err, users){
-            var permit = ["displayName", "profilePic", "rating"];
-            users = _.map(users, function(user){
-                var fields = {}, obj = {};
-                for (var i=0; i<permit.length; i++) {
-                    fields[permit[i]] = user[permit[i]]
-                }
-                    var userid = user._id;
-                obj[userid]= fields;
-                return obj;
-            });
-            //console.log(users);
-            results = _.map(results, function(val){
-                var userId = val.obj.requesterId;
-                //console.log(userId);
-                for (var i=0; i<users.length; i++) {
-                    if (Object.keys(users[i])[0] == userId) {
-                        val.obj._doc.user = {};
-                        val.obj._doc.user = users[i][userId];
-                        //console.log(val);
-                        //console.log(users[i][userId]);
-                        break;
-                    }
-                }
-                return val;
-            });
-            //console.log(results);
-            callback(err, results)
-        });
+        //console.log(err);
+        if (err) {return callback(err);}
+        console.log(results);
+        console.log(stats);
 
+        //map each result to new object using distance
+        results = results.map(function(x){
+            var y = new that(x.obj);
+            y._distance = x.dist;
+            return y;
+        });
+        var user_permitted = "displayName profilePic rating";
+        that.populate(results, {path: "requesterId", select: user_permitted}, function(err, requests){
+           if (err) {callback(err)}
+            else callback(null, requests);
+        });
     });
 };
 
@@ -187,7 +164,7 @@ requestSchema.statics.acceptRequest = function(userId, requestId, bidId, callbac
                 });
             }
         }
-        else callback("Invariant error.")
+        else callback("Must be request creator to accept request.")
     });
 };
 
